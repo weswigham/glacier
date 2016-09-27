@@ -1,0 +1,39 @@
+{
+  "name": "glacier",
+  "version": "0.0.1",
+  "description": "JS Model Component of Glimpse",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glimpseio/glacier.git"
+  },
+  "keywords": [
+    "glacier",
+    "glimpse",
+    "data",
+    "visualization",
+    "model",
+    "vega",
+    "vegalite",
+    "d3"
+  ],
+  "author": "Team Icebreaker on behalf of GlimpseIO",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/glimpseio/glacier/issues"
+  },
+  "homepage": "https://github.com/glimpseio/glacier#readme",
+  "devDependencies": {
+    "@types/gulp": "^3.8.32",
+    "@types/gulp-typescript": "0.0.32",
+    "@types/webpack": "^1.12.34",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.0.1",
+    "tslint": "^3.15.1",
+    "typescript": "^2.0.3",
+    "webpack": "^1.13.2"
+  }
+}
