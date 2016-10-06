@@ -10,3 +10,11 @@ describe("A smoke test suite", () => {
         expect(glacier).to.exist;
     });
 });
+
+describe("glacier as a model", () => {
+    it("should expose a data source", () => {
+        expect(glacier.createDataSource).to.exist;
+    });
+    it("should expose an evented model");
+    it("should expose an export framework");
+})

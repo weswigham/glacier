@@ -11,7 +11,7 @@ function createBuildStream(release?: boolean) {
   return gulp.src("src/index.ts")
     .pipe(ws({
       output: {
-        filename: "glacier.js",
+        filename: release ? "glacier.min.js" : "glacier.js",
       },
         resolve: {
             // Add `.ts` and `.tsx` as a resolvable extension.

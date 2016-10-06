@@ -34,6 +34,6 @@ export function createExporter(store: redux.Store<ModelState>) {
     }) as Exporter)
     updater.export = () => {
         return "";
-    }
+    };
     return updater;
 }
