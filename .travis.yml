@@ -1,4 +1,6 @@
-node_js: latest
+language: node_js
+node_js:
+  - '6'
 
 os:
   - linux
@@ -6,9 +8,6 @@ os:
 branches:
   only:
     - master
-
-env:
-  - NODE_VERSION="6.3.0"
 
 script: ./scripts/travis.sh
 
