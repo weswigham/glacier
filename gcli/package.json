@@ -1,0 +1,16 @@
+{
+  "name": "gcli",
+  "version": "0.0.1",
+  "description": "command line interface for glacier ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "index.js",
+  "author": "Zach Calfin",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "glacier": "0.0.1"
+  }
+}
