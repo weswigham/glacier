@@ -27,6 +27,8 @@ export function createMemoryDataSource(store: redux.Store<ModelState>) {
     }
 }
 
+export {createDataSource as createSqlDataSource} from './sqlDataSource';
+
 export interface Exporter<T> {
     (): void; // OnUpdate method
     export(): Promise<T>;
