@@ -8,7 +8,7 @@ const gulp = helper(rootGulp);
 
 
 function createBuildStream(release?: boolean) {
-  return gulp.src("src/index.ts")
+  return gulp.src("src/index.ts", "src/typings/**/*.d.ts")
     .pipe(ws({
       output: {
         filename: release ? "glacier.min.js" : "glacier.js",
@@ -37,7 +37,7 @@ gulp.task("build-release", "Does a 'build' with minification enabled", [], () =>
 });
 
 gulp.task("build-test", "Compiles a test bundle from the test ts sources and the library ts", [], () => {
-  return gulp.src(["src/index.ts", "src/test/**/*.ts"])
+  return gulp.src(["src/index.ts", "src/typings/**/*.d.ts", "src/test/**/*.ts"])
     .pipe(ws({
       output: {
         filename: "test.glacier.js",
