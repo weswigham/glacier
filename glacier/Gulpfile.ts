@@ -8,7 +8,7 @@ const gulp = helper(rootGulp);
 
 
 function createBuildStream(release?: boolean) {
-  return gulp.src("src/index.ts", "src/typings/**/*.d.ts")
+  return gulp.src("src/index.ts")
     .pipe(ws({
       output: {
         filename: release ? "glacier.min.js" : "glacier.js",
@@ -21,7 +21,7 @@ function createBuildStream(release?: boolean) {
             loaders: [
             { test: /\.json$/, loader: "json-loader" },
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-            { test: /\.tsx?$/, loader: "ts-loader" }
+            { test: /\.tsx?$/, loader: "ts-loader", exclude: /node_modules/ }
             ]
         },
         plugins: release ? [new webpack.optimize.UglifyJsPlugin()] : []
@@ -37,7 +37,7 @@ gulp.task("build-release", "Does a 'build' with minification enabled", [], () =>
     return createBuildStream(/*release*/true);
 });
 
-gulp.task("test", "Executes the test suite", [], () => {
+gulp.task("test", "Executes the test suite", ["build"], () => {
     return gulp.src("src/test/**/*.ts", {read: false})
         .pipe(mocha({reporter: "spec"}));
 });
