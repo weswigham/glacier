@@ -19,6 +19,7 @@ function createBuildStream(release?: boolean) {
         },
         module: {
             loaders: [
+            { test: /\.json$/, loader: "json-loader" },
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: "ts-loader" }
             ]
@@ -48,6 +49,7 @@ gulp.task("build-test", "Compiles a test bundle from the test ts sources and the
         },
         module: {
             loaders: [
+            { test: /\.json$/, loader: "json-loader" },
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: "ts-loader" }
             ]

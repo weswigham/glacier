@@ -3,25 +3,23 @@ import redux = require('redux');
 import {ModelState} from './index';
 
 
-const dummy = !!0 && knex({})
+const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
 class SqlDataSource {
     private _conn: typeof dummy;
-    constructor(private store: redux.Store<ModelState>, filename: string) {
+    constructor(private store: redux.Store<ModelState>, filename: string = "../../data/CycleChain.sqlite") {
         const connection = knex({
             client: 'sqlite3',
-            connection: {
-                filename: "../../data/CycleChain.sqlite"
-            }
+            connection: { filename }
         });
         this._conn = connection;
         this.fetchData();
     }
     fetchData() {
-        (this._conn.select('DaysToManufacture', 'ListPrice').from('Product') as any).then(function(a){
+        this._conn.select('DaysToManufacture', 'ListPrice').from('Product').then((data) => {
             const spec = {
                 description:"Test Plot",
                 data:{
-                    values:a
+                    values: data
                 },
                 mark: "point",
                 encoding:{

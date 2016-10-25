@@ -1,6 +1,14 @@
 import * as redux from "redux";
-import {compile} from "vega-lite";
+import * as vl from "vega-lite";
+declare global {
+    interface Element {}
+}
 import * as vega from "vega";
+
+export type ReduxStandardAction<T extends string, P> = {type: T, payload: P, error?: Error};
+export type AddDataSource<S extends string, T, C> = ReduxStandardAction<"ADD_DATA_SOURCE", {type: S, metadata: T, cache: C}>;
+export type AddSqliteFileDataSource<S> = AddDataSource<"sqlite-file", {path: string}, S>;
+
 
 export interface ModelState {
     spec: any
@@ -43,7 +51,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
     updater.export = () => {
         const {spec} = store.getState();
         return new Promise<string>((resolve, reject) => {
-            vega.parse.spec(compile(spec), chart => {
+            vega.parse.spec(vl.compile(spec), chart => {
                 let result: string | undefined;
                 try {
                     result = chart({renderer: 'svg'}).update().svg();
