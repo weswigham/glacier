@@ -9,7 +9,7 @@ const dummy = (true as boolean as false) || knex({}); // Makes the return type o
 class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
     private _uuid: number;
-    constructor(private store: redux.Store<ModelState>, filename: string = "../../data/CycleChain.sqlite") {
+    constructor(private store: redux.Store<ModelState>, filename: string) {
         const action = createAddDataSourceAction("sqlite-file", {path: filename}, {});
         this._uuid = action.payload.uuid;
         const connection = knex({
