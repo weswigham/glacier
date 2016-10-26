@@ -22,7 +22,6 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
         // TODO: Update this example to appropriately insert encodings once encodings are held within the store
         const unsubscribe = model.subscribe(() => exporter.export().then(value => {
-            console.log(value);
             expect(value).to.be.a("string");
             expect(value).to.be.equal(require("fs").readFileSync("../data/visualization.svg").toString());
             unsubscribe();

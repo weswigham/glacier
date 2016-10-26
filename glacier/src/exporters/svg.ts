@@ -27,10 +27,11 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             }
         };
         return new Promise<string>((resolve, reject) => {
-            vega.parse.spec(vl.compile(spec), chart => {
+            const {spec: compiled} = vl.compile(spec);
+            vega.parse.spec(compiled, chart => {
                 let result: string | undefined;
                 try {
-                    result = chart({renderer: 'svg'}).update().svg();
+                    result = chart({renderer: "svg"}).update().svg();
                 }
                 catch (e) {
                     return reject(e);
