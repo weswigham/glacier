@@ -14,16 +14,19 @@ class SqlDataSourceAdapter implements DataAdapter {
         this._uuid = action.payload.uuid;
         const connection = knex({
             client: "sqlite3",
-            connection: { filename }
+            connection: { filename },
+            useNullAsDefault: true
         });
         this._conn = connection;
         store.dispatch(action);
         this.updateCache();
     }
     updateCache() {
-        this._conn.select("DaysToManufacture", "ListPrice").from("Product").then((data) => {
+        this._conn.select("DaysToManufacture", "ListPrice").from("Product").then(data => {
             const action = createUpdateDataCacheAction(this._uuid, data);
             this.store.dispatch(action);
+        }, err => {
+            this.store.dispatch({type: "UPDATE_DATA_CACHE", error: err});
         });
     }
     remove() {

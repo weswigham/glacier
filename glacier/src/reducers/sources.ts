@@ -4,8 +4,9 @@ import {AllActions} from "../actions";
 export function sources(state: SourcesModelState | undefined, action: AllActions): SourcesModelState {
     if (!state) return {};
     if (action.error) {
-        // TODO: Logging?
-        return state;
+        // TODO: Logging? Graceful recovery? Error handler provided by consumer?
+        throw action.error;
+        // return state;
     }
     // TODO: Update TS dependency to typescript@next once TS#11150 is merged
     // and use commented object spead expressions in the below rather than

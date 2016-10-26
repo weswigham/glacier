@@ -11,7 +11,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
     const updater: Exporter<string> = ((() => {
         // On update...
         // store.getState()
-    }) as Exporter<string>)
+    }) as Exporter<string>);
     updater.export = () => {
         const {sources} = store.getState();
         // TODO: Store encodings in store; join multiple data sources in values
