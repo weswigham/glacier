@@ -5,8 +5,8 @@ var APP_DIR = path.resolve(__dirname, 'src');
 
 module.exports = {
 	entry: { 
-		main: './src/main.js',
-		app: ['./src/app.ts']
+		main: APP_DIR + '/main.js',
+		app: [ APP_DIR + '/app.ts']
 	},
 	target: 'electron',
 	output: {
@@ -28,8 +28,9 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			title: 'Gluon',
+			excludeChunks: ['main'],
 			filename: 'index.html',
-			template: 'src/index-template.html'
+			template: APP_DIR + '/index-template.html'
 		})
 	]
 };
