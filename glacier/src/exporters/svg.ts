@@ -16,6 +16,8 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         const {sources} = store.getState();
         // TODO: Store encodings in store; join multiple data sources in values
         const spec = {
+            width: 264,
+            height: 255,
             description:"Test Plot",
             data:{
                 values: sources[0].cache
