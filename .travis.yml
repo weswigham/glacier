@@ -9,7 +9,10 @@ branches:
   only:
     - master
 
-script: sh -e ./scripts/travis.sh
+before_install:
+ - chmod +x ./scripts/travis.sh
+
+script: ./scripts/travis.sh
 
 test: 
 cache:
