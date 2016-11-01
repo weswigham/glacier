@@ -45,3 +45,5 @@ jspm_packages
 
 # local test build output for glacier
 glacier/dist/local
+
+.DS_Store
