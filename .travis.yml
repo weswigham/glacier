@@ -31,11 +31,10 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+    packages:
       - libcairo2-dev
       - libjpeg-dev
       - libpango1.0-dev
       - libgif-dev
       - build-essential
-      - g++
-    packages:
       - g++-4.8
