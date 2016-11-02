@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noFallthroughCasesInSwitch": true,
+        "preserveConstEnums": true,
+        "removeComments": false,
+        "lib": ["es5"]
+    },
+    "files": [
+        "src/app.ts"
+    ]
+}
