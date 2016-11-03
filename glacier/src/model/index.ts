@@ -4,6 +4,7 @@ export interface ModelState {
 
 export interface SourcesModelState {
     readonly [index: number]: AnyDataSource;
+    // readonly spec?: Spec;
 }
 
 export interface DataSource<T extends string, M, C> {
@@ -12,6 +13,10 @@ export interface DataSource<T extends string, M, C> {
     readonly cache: C;
     readonly uuid: number;
 }
+
+// export interface Spec {
+
+// }
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}
