@@ -3,6 +3,8 @@ import helper = require("gulp-help");
 import ws = require("webpack-stream");
 import webpack = require("webpack");
 import mocha = require("gulp-mocha");
+import gulpts = require("gulp-typescript");
+import mergeStreams = require("merge2");
 
 const gulp = helper(rootGulp);
 
@@ -34,7 +36,14 @@ gulp.task("build", "Compiles all typescript code and bundles it into a single fi
 });
 
 gulp.task("build-release", "Does a 'build' with minification enabled", [], () => {
-    return createBuildStream(/*release*/true);
+    const project = gulpts.createProject("./src/tsconfig.json", {typescript: require("typescript")});
+    const streams = project.src()
+            .pipe(project(gulpts.reporter.fullReporter(true)));
+    return mergeStreams(
+            streams.js.pipe(gulp.dest("./dist")),
+            streams.dts.pipe(gulp.dest("./dist")),
+        /*createBuildStream(/*release/true)*/
+    );
 });
 
 gulp.task("test", "Executes the test suite", ["build"], () => {

@@ -11,9 +11,14 @@
         "preserveConstEnums": true,
         "removeComments": false,
         "lib": ["es6"],
-        "types": []
+        "types": [],
+        "declaration": true
     },
-    "files": [
-        "index.ts"
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "./test/**/*.ts",
+        "./node_modules/**"
     ]
 }

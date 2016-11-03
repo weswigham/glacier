@@ -6,7 +6,7 @@ import {createAddDataSourceAction, createUpdateDataCacheAction, createRemoveData
 
 
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
-class SqlDataSourceAdapter implements DataAdapter {
+export class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
     private _uuid: number;
     constructor(private store: redux.Store<ModelState>, filename: string) {
