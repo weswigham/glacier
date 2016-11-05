@@ -1,39 +1,13 @@
-import * as redux from "redux";
+export * from "./model";
 
-export interface ModelState {}
-export type Message = {}
-export type SourceType = "sqlite";
+import {createStore, combineReducers, Store} from "redux";
+import * as actions from "./actions";
+import * as reducers from "./reducers";
+import {ModelState} from "./model";
 
-export function createModel() {
-    return redux.createStore((state: ModelState, action: Message) => {
-        // TODO: Define actions and handle state changes
-        return state;
-    });
+export function createModel(): Store<ModelState> {
+    return createStore(combineReducers<ModelState>(reducers as any as {[index: string]: () => any}));
 }
 
-export function createSqliteDataSource() {
-    return createDataSource("sqlite");
-}
-
-export function createDataSource(type: SourceType) {
-    return new class {
-
-    };
-}
-
-export interface Exporter {
-    (): void; // OnUpdate method
-    export(): string;
-}
-
-
-export function createExporter(store: redux.Store<ModelState>) {
-    const updater: Exporter = ((() => {
-        // On update...
-        store.getState()
-    }) as Exporter)
-    updater.export = () => {
-        return "";
-    };
-    return updater;
-}
+export * from "./adapters";
+export * from "./exporters";

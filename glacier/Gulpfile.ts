@@ -3,6 +3,8 @@ import helper = require("gulp-help");
 import ws = require("webpack-stream");
 import webpack = require("webpack");
 import mocha = require("gulp-mocha");
+import gulpts = require("gulp-typescript");
+import mergeStreams = require("merge2");
 
 const gulp = helper(rootGulp);
 
@@ -19,8 +21,9 @@ function createBuildStream(release?: boolean) {
         },
         module: {
             loaders: [
+            { test: /\.json$/, loader: "json-loader" },
             // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-            { test: /\.tsx?$/, loader: "ts-loader" }
+            { test: /\.tsx?$/, loader: "ts-loader", exclude: /node_modules/ }
             ]
         },
         plugins: release ? [new webpack.optimize.UglifyJsPlugin()] : []
@@ -33,31 +36,18 @@ gulp.task("build", "Compiles all typescript code and bundles it into a single fi
 });
 
 gulp.task("build-release", "Does a 'build' with minification enabled", [], () => {
-    return createBuildStream(/*release*/true);
+    const project = gulpts.createProject("./src/tsconfig.json", {typescript: require("typescript")});
+    const streams = project.src()
+            .pipe(project(gulpts.reporter.fullReporter(true)));
+    return mergeStreams(
+            streams.js.pipe(gulp.dest("./dist")),
+            streams.dts.pipe(gulp.dest("./dist")),
+        /*createBuildStream(/*release/true)*/
+    );
 });
 
-gulp.task("build-test", "Compiles a test bundle from the test ts sources and the library ts", [], () => {
-  return gulp.src(["src/index.ts", "src/test/**/*.ts"])
-    .pipe(ws({
-      output: {
-        filename: "test.glacier.js",
-      },
-        resolve: {
-            // Add `.ts` and `.tsx` as a resolvable extension.
-            extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
-        },
-        module: {
-            loaders: [
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-            { test: /\.tsx?$/, loader: "ts-loader" }
-            ]
-        },
-    }))
-    .pipe(gulp.dest("dist/local/"));
-});
-
-gulp.task("test", "Executes the test suite", ["build-test"], () => {
-    return gulp.src("dist/local/test.glacier.js", {read: false})
+gulp.task("test", "Executes the test suite", ["build"], () => {
+    return gulp.src("src/test/**/*.ts", {read: false})
         .pipe(mocha({reporter: "spec"}));
 });
 
