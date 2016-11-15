@@ -1,6 +1,9 @@
 /// <reference types="mocha" />
 import {expect} from "chai";
 import * as glacier from "../index";
+import {parseString}  from 'xml2js';
+
+
 
 describe("A smoke test suite", () => {
     it("should pass", () => {
@@ -24,6 +27,51 @@ describe("glacier as a model", () => {
         const unsubscribe = model.subscribe(() => exporter.export().then(value => {
             expect(value).to.be.a("string");
             expect(value).to.be.equal(require("fs").readFileSync("../data/visualization.svg").toString());
+            const xml = require("fs").readFileSync("../data/visualization.svg").toString();
+            let tOne = [];
+            let tTwo = [];
+            let firstEles = [];
+            let secondEles = [];
+            const recurse = function(xmljs:any){
+                let eles = 0;
+                let gElements = 0;
+                if ( xmljs instanceof Object) {
+                    const keys = Object.keys(xmljs);
+                    eles += keys.length;
+                    for (var i = 0; i < keys.length; i++) {
+                        let key = keys[i];
+                        if (key == "g"){
+                            ++gElements;
+                        }
+                        let resp = recurse(xmljs[key]);
+                        eles += resp[0];
+                        gElements += resp[1];
+                        
+                    }
+                }else if ( xmljs instanceof Array ) {
+                    for (var i = 0; i < xmljs.length; i++) {
+                        let resp = recurse(xmljs[i]);
+                        eles += resp[0];
+                        gElements += resp[1];
+                    }
+                }
+                
+                let response = [eles, gElements];
+                return response;
+            }
+            
+                parseString(xml, function(err, result){
+                    tOne = recurse(result);
+                    firstEles = Object.keys(result.svg);
+                });
+                parseString(value, function(err, result){
+                    tTwo = recurse(result);
+                    secondEles = Object.keys(result.svg);
+                });
+            
+            expect(tOne[0]).to.be.equal(tTwo[0]);
+            expect(tOne[1]).to.be.equal(tTwo[1]);
+            expect(firstEles).to.be.equal(secondEles);
             unsubscribe();
             adapter.remove();
             done();
