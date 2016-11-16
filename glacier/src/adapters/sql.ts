@@ -22,7 +22,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
         this.updateCache();
     }
     updateCache() {
-        this._conn.select("DaysToManufacture", "ListPrice").from("Product").then(data => {
+        return this._conn.select("DaysToManufacture", "ListPrice").from("Product").then(data => {
             const action = createUpdateDataCacheAction(this._uuid, data);
             this.store.dispatch(action);
         }, err => {
@@ -30,9 +30,9 @@ export class SqlDataSourceAdapter implements DataAdapter {
         });
     }
     remove() {
-
         const action = createRemoveDataSourceAction(this._uuid);
         this.store.dispatch(action);
+        return Promise.resolve();
     }
 }
 
