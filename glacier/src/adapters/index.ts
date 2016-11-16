@@ -1,6 +1,6 @@
 export interface DataAdapter {
-    updateCache(): void;
-    remove(): void;
+    updateCache(): Promise<void>;
+    remove(): Promise<void>;
 }
 
 export * from "./memory";
