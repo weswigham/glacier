@@ -1,21 +1,8 @@
 /// <reference types="mocha" />
 import {expect} from "chai";
 import * as glacier from "../index";
-import {parseString}  from 'xml2js';
-
-function xml2json(xml: string) {
-    return new Promise<any>((resolve, reject) => parseString(xml, (err, json) => err ? reject(err) : resolve(json)));
-}
-
-type SvgStats = {totalElements: number, gElements: number};
-function visitStructureAndGatherStats(xmljs: {[index: string]: any}, visited: any[] = []): SvgStats {
-    return Object.keys(xmljs).reduce<SvgStats>(({totalElements, gElements}, key) => {
-        if (visited.indexOf(xmljs[key]) !== -1) return {totalElements, gElements}; // Must keep a visited list, as xml structure can contains parent references
-        visited.push(xmljs[key]);
-        const {totalElements: elems, gElements: gs} = visitStructureAndGatherStats(xmljs[key], visited);
-        return {totalElements: totalElements+elems+1, gElements: gElements+gs+(key === "g" ? 1 : 0)};
-    }, {totalElements: 0, gElements: 0});
-};
+import {DOMParser} from "xmldom";
+import {evaluate, XPathResult} from "xpath";
 
 describe("A smoke test suite", () => {
     it("should pass", () => {
@@ -41,12 +28,33 @@ describe("glacier as a model", () => {
             expect(value).to.be.a("string");
             const xml = require("fs").readFileSync("../data/visualization.svg").toString();
             
-            return Promise.all([xml2json(xml), xml2json(value)]).then(([result1, result2]) => {
-                const [tOne, tTwo] = [visitStructureAndGatherStats(result1), visitStructureAndGatherStats(result2)];
-                expect(tOne.totalElements).to.be.equal(tTwo.totalElements);
-                expect(tOne.gElements).to.be.equal(tTwo.gElements);
-                return adapter.remove();
-            });
+            const parser = new DOMParser();
+            const expected = parser.parseFromString(xml, "image/svg+xml");
+            const actual = parser.parseFromString(value, "image/svg+xml");
+            const expectedTextResult = evaluate("//*[local-name() = 'text']", expected, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+            const actualTextResult = evaluate("//*[local-name() = 'text']", actual, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+
+            let textElements = 0;
+            while (true) {
+                const expectedText = expectedTextResult.iterateNext();
+                const actualText = actualTextResult.iterateNext();
+                if (expectedText == null && actualText == null) {
+                    break;
+                }
+                else if (expectedText == null) {
+                    throw new Error("More actual elements than expected");
+                }
+                else if (actualText == null) {
+                    throw new Error("More expected elements than actual");
+                }
+
+                textElements++;
+                expect(actualText.textContent).to.equal(expectedText.textContent);
+            }
+            expect(textElements).to.be.greaterThan(0);
+            expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+            expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+            return adapter.remove();
         });
     });
 });
