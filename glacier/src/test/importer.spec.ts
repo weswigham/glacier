@@ -3,7 +3,19 @@ import {expect} from "chai";
 import * as glacier from "../index";
 import {parseString}  from 'xml2js';
 
+function xml2json(xml: string) {
+    return new Promise<any>((resolve, reject) => parseString(xml, (err, json) => err ? reject(err) : resolve(json)));
+}
 
+type SvgStats = {totalElements: number, gElements: number};
+function visitStructureAndGatherStats(xmljs: {[index: string]: any}, visited: any[] = []): SvgStats {
+    return Object.keys(xmljs).reduce<SvgStats>(({totalElements, gElements}, key) => {
+        if (visited.indexOf(xmljs[key]) !== -1) return {totalElements, gElements}; // Must keep a visited list, as xml structure can contains parent references
+        visited.push(xmljs[key]);
+        const {totalElements: elems, gElements: gs} = visitStructureAndGatherStats(xmljs[key], visited);
+        return {totalElements: totalElements+elems+1, gElements: gElements+gs+(key === "g" ? 1 : 0)};
+    }, {totalElements: 0, gElements: 0});
+};
 
 describe("A smoke test suite", () => {
     it("should pass", () => {
@@ -24,69 +36,17 @@ describe("glacier as a model", () => {
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         const exporter = glacier.createSvgExporter(model);
         // TODO: Update this example to appropriately insert encodings once encodings are held within the store
-<<<<<<< HEAD
-        adapter.updateCache().then(() => exporter.export().then(value => {
-            expect(value).to.be.a("string");
-        //    expect(value).to.be.equal(require("fs").readFileSync("../data/visualization.svg").toString());
-            const xml = require("fs").readFileSync("../data/visualization.svg").toString();
-            let tOne = new Array();
-            let tTwo = new Array();
-            let firstEles = new Array();
-            let secondEles = new Array();
-            const recurse = function(xmljs:any){
-                let eles = 0;
-                let gElements = 0;
-                if ( xmljs instanceof Object) {
-                    const keys = Object.keys(xmljs);
-                    eles += keys.length;
-                    for (var i = 0; i < keys.length; i++) {
-                        let key = keys[i];
-                        if (key == "g"){
-                            ++gElements;
-                        }
-                        if(key=="DaysToManufacture"){
-                            console.log(xmljs[key]);
-                        }
-                        let resp = recurse(xmljs[key]);
-                        eles += resp[0];
-                        gElements += resp[1];
-                        
-                    }
-                }
-                if ( xmljs instanceof Array ) {
-                    for (var i = 0; i < xmljs.length; i++) {
-                      // console.log(xmljs);
-                        let resp = recurse(xmljs[i]);
-                        eles += resp[0];
-                        gElements += resp[1];
-                    }
-                }
-                
-                let response = [eles, gElements];
-                return response;
-            }
-            
-            parseString(xml, function(err, result){
-                tOne = recurse(result);
-                firstEles = Object.keys(result.svg);
-            });
-            parseString(value, function(err, result){
-                tTwo = recurse(result);
-                secondEles = Object.keys(result.svg);
-            });
-            
-            expect(tOne[0]).to.be.equal(tTwo[0]);
-            expect(tOne[1]).to.be.equal(tTwo[1]);
-            //expect(firstEles).to.be.equal(secondEles);
-            adapter.remove();
-            done();
-        }).catch(err => done(err)));
-=======
+
         return adapter.updateCache().then(() => exporter.export()).then(value => {
             expect(value).to.be.a("string");
-            expect(value).to.be.equal(require("fs").readFileSync("../data/visualization.svg").toString());
-            return adapter.remove();
+            const xml = require("fs").readFileSync("../data/visualization.svg").toString();
+            
+            return Promise.all([xml2json(xml), xml2json(value)]).then(([result1, result2]) => {
+                const [tOne, tTwo] = [visitStructureAndGatherStats(result1), visitStructureAndGatherStats(result2)];
+                expect(tOne.totalElements).to.be.equal(tTwo.totalElements);
+                expect(tOne.gElements).to.be.equal(tTwo.gElements);
+                return adapter.remove();
+            });
         });
->>>>>>> master
     });
 });
