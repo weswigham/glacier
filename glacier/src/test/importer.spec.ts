@@ -16,18 +16,15 @@ describe("glacier as a model", () => {
         expect(glacier.createSqlFileDataSource).to.exist;
     });
     it("should expose an evented model");
-    it("should be usable as a tool to consume structured data and emit visualizations", (done: (err?: any) => void) => {
+    it("should be usable as a tool to consume structured data and emit visualizations", () => {
         const model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         const exporter = glacier.createSvgExporter(model);
         // TODO: Update this example to appropriately insert encodings once encodings are held within the store
-        const unsubscribe = model.subscribe(() => exporter.export().then(value => {
+        return adapter.updateCache().then(() => exporter.export()).then(value => {
             expect(value).to.be.a("string");
             expect(value).to.be.equal(require("fs").readFileSync("../data/visualization.svg").toString());
-            unsubscribe();
-            adapter.remove();
-            done();
-        }).catch(err => done(err)));
-        adapter.updateCache();
+            return adapter.remove();
+        });
     });
 });

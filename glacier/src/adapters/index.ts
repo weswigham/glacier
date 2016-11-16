@@ -1,5 +1,5 @@
 export interface DataAdapter {
-    updateCache(): void;
+    updateCache(): Promise<void>;
     remove(): void;
 }
 

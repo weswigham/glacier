@@ -17,10 +17,12 @@ export function createMemoryDataSource(store: redux.Store<ModelState>): MemoryDa
     func.updateCache = () => {
         const action = createUpdateDataCacheAction(uuid, storedData);
         store.dispatch(action);
+        return Promise.resolve();
     };
     func.remove = () => {
         const action = createRemoveDataSourceAction(uuid);
         store.dispatch(action);
+        return Promise.resolve();
     };
     store.dispatch(createAction);
     return func;
