@@ -21,7 +21,8 @@ export interface MarkState {
         readonly height: number
     };
     readonly description?: string;
-    readonly encoding?: Encoding
+    readonly encoding?: Encoding;
+    data?: any;
 }
 export interface Encoding{
     readonly x? : {},
