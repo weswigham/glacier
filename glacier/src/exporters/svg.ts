@@ -7,7 +7,7 @@ import redux = require("redux");
 import {ModelState, MarkState} from "../";
 import {Exporter} from "./";
 
-export function createSvgExporter(store: redux.Store<ModelState>) {
+export function createSvgExporter(store: redux.Store<ModelState>, uuid: number) {
     const updater: Exporter<string> = ((() => {
         // On update...
         // store.getState()
@@ -17,7 +17,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         // TODO: Store encodings in store; join multiple data sources in values
         const spec = store.getState().marks;
         spec.data = {
-            values: sources[0].cache
+            values: sources[uuid].cache
         };
         return new Promise<string>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);
