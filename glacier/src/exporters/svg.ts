@@ -13,9 +13,9 @@ export function createSvgExporter(store: redux.Store<ModelState>, uuid: number) 
         // store.getState()
     }) as Exporter<string>);
     updater.export = () => {
-        const {sources} = store.getState();
+        const {sources, marks} = store.getState();
         // TODO: Store encodings in store; join multiple data sources in values
-        const spec = store.getState().marks;
+        const spec: MarkState & {data?: any} = Object.create(marks);
         spec.data = {
             values: sources[uuid].cache
         };

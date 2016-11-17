@@ -22,7 +22,6 @@ export interface MarkState {
     };
     readonly description?: string;
     readonly encoding?: Encoding;
-    data?: any;
 }
 export interface Encoding{
     readonly x? : {},
