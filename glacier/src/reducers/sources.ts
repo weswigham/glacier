@@ -1,5 +1,13 @@
-import {AnyDataSource, SourcesModelState} from "../model";
+import {AnyDataSource, SourcesModelState, DataSource} from "../model";
 import {AllActions} from "../actions";
+
+function filterState(state: SourcesModelState, toRemove: number) {
+    const ret: SourcesModelState = {};
+    Object.keys(state).filter(k => k !== toRemove.toString()).forEach(key => {
+        ret[key] = state[key];
+    });
+    return ret;
+}
 
 export function sources(state: SourcesModelState | undefined, action: AllActions): SourcesModelState {
     if (!state) return {};
@@ -15,27 +23,16 @@ export function sources(state: SourcesModelState | undefined, action: AllActions
         case "ADD_DATA_SOURCE": {
             // TODO: Consider issuing error if action.payload.uuid is already present in the state?
             if (state[action.payload.uuid]) return state;
-            //return {...state, [action.payload.uuid]: action.payload};
-            const newState = Object.create(state);
-            (newState as any)[action.payload.uuid] = action.payload;
-            return newState;
+            return {...state, [action.payload.uuid]: action.payload};
         }
         case "REMOVE_DATA_SOURCE": {
             // TODO: Consider issuing error if action.payload.uuid is not already present in the state?
-            //return {...state, [action.payload.uuid]: undefined};
-            const newState = Object.create(state);
-            delete action.payload.uuid;
-            return newState;
+            return {...filterState(state, action.payload.uuid)};
         }
         case "UPDATE_DATA_CACHE": {
             const found = state[action.payload.uuid];
             if (!found) return state; // TODO: Issue error if no cache is found to place update into?
-            //return {...state, [action.payload.uuid]: {...found, cache: action.payload.cache}};
-            const newState = Object.create(state);
-            const newFound = Object.create(found);
-            (newFound as any).cache = action.payload.cache;
-            (newState as any)[action.payload.uuid] = newFound;
-            return newState;
+            return {...state, [action.payload.uuid]: {...found as DataSource<any, any, any>, cache: action.payload.cache}};
         }
         default: return state;
     }
