@@ -8,12 +8,12 @@ type Optional<T> = {
     [K in keyof T]?: T[K]    
 }
 
-function filterState<T>(state: T, toRemove: keyof T): T {
-    const ret: Optional<Writable<T>> = {};
-    Object.keys(state).filter(k => k !== toRemove.toString()).forEach(key => {
+function filterState(state: SourcesModelState, toRemove: keyof SourcesModelState): SourcesModelState {
+    const ret: Optional<Writable<SourcesModelState>> = {};
+    Object.keys(state).map(k => +k).filter(k => k !== toRemove).forEach(key => {
         ret[key] = state[key];
     });
-    return ret as T;
+    return ret;
 }
 
 export function sources(state: SourcesModelState | undefined, action: AllActions): SourcesModelState {
