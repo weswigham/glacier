@@ -1,12 +1,19 @@
 import {AnyDataSource, SourcesModelState, DataSource} from "../model";
 import {AllActions} from "../actions";
 
-function filterState(state: SourcesModelState, toRemove: number) {
-    const ret: SourcesModelState = {};
+type Writable<T> = {
+    [K in keyof T]: T[K]
+};
+type Optional<T> = {
+    [K in keyof T]?: T[K]    
+}
+
+function filterState<T>(state: T, toRemove: keyof T): T {
+    const ret: Optional<Writable<T>> = {};
     Object.keys(state).filter(k => k !== toRemove.toString()).forEach(key => {
         ret[key] = state[key];
     });
-    return ret;
+    return ret as T;
 }
 
 export function sources(state: SourcesModelState | undefined, action: AllActions): SourcesModelState {
