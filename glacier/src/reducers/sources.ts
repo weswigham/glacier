@@ -1,9 +1,16 @@
 import {AnyDataSource, SourcesModelState, DataSource} from "../model";
 import {AllActions} from "../actions";
 
-function filterState(state: SourcesModelState, toRemove: number) {
-    const ret: SourcesModelState = {};
-    Object.keys(state).filter(k => k !== toRemove.toString()).forEach(key => {
+type Writable<T> = {
+    [K in keyof T]: T[K]
+};
+type Optional<T> = {
+    [K in keyof T]?: T[K]    
+}
+
+function filterState(state: SourcesModelState, toRemove: keyof SourcesModelState): SourcesModelState {
+    const ret: Optional<Writable<SourcesModelState>> = {};
+    Object.keys(state).map(k => +k).filter(k => k !== toRemove).forEach(key => {
         ret[key] = state[key];
     });
     return ret;
