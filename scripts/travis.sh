@@ -10,7 +10,7 @@ cd glacier
 npm install
 npm test
 result=$?;
-if [[$result != 0]]; then
+if [[ $result != 0 ]]; then
   exit $result;
 fi
 cd ../
@@ -19,7 +19,7 @@ cd gluon
 npm install
 npm test
 result=$?;
-if [[$result != 0]]; then
+if [[ $result != 0 ]]; then
     exit $result;
 fi
 cd ../
