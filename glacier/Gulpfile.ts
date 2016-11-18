@@ -48,7 +48,8 @@ gulp.task("build-release", "Does a 'build' with minification enabled", [], () =>
 
 gulp.task("test", "Executes the test suite", ["build"], () => {
     return gulp.src("src/test/**/*.ts", {read: false})
-        .pipe(mocha({reporter: "spec"}));
+        .pipe(mocha({reporter: "spec"}))
+        .on("error", (e: any) => (console.log(e.toString()), process.exit(1)));
 });
 
 gulp.task("release", "Runs tests and builds a release", ["test", "build-release"]);
