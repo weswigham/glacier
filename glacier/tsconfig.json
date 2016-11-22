@@ -4,6 +4,7 @@
         "target": "es5",
         "noImplicitAny": true,
         "sourceMap": true,
+        "inlineSourceMap": true,
         "strictNullChecks": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,

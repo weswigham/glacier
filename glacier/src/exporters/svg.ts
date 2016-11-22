@@ -4,29 +4,20 @@ declare global {
 }
 import * as vega from "vega";
 import redux = require("redux");
-import {ModelState} from "../";
+import {ModelState, MarkState} from "../";
 import {Exporter} from "./";
 
-export function createSvgExporter(store: redux.Store<ModelState>) {
+export function createSvgExporter(store: redux.Store<ModelState>, uuid: number) {
     const updater: Exporter<string> = ((() => {
         // On update...
         // store.getState()
     }) as Exporter<string>);
     updater.export = () => {
-        const {sources} = store.getState();
+        const {sources, marks} = store.getState();
         // TODO: Store encodings in store; join multiple data sources in values
-        const spec = {
-            width: 264,
-            height: 255,
-            description:"Test Plot",
-            data:{
-                values: sources[0].cache
-            },
-            mark: "point",
-            encoding:{
-                x: {field: "DaysToManufacture", type: "quantitative"},
-                y: {field: "ListPrice", type: "quantitative"}
-            }
+        const spec: MarkState & {data?: any} = Object.create(marks);
+        spec.data = {
+            values: sources[uuid].cache
         };
         return new Promise<string>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);
