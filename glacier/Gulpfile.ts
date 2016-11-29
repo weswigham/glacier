@@ -5,9 +5,38 @@ import webpack = require("webpack");
 import mocha = require("gulp-mocha");
 import gulpts = require("gulp-typescript");
 import mergeStreams = require("merge2");
+import child_process = require("child_process");
+import path = require("path");
 
 const gulp = helper(rootGulp);
 
+
+// add node_modules to path so we don't need global modules, prefer the modules by adding them first
+const nodeModulesPathPrefix = path.resolve("./node_modules/.bin/") + path.delimiter;
+if (process.env.path !== undefined) {
+    process.env.path = nodeModulesPathPrefix + process.env.path;
+} else if (process.env.PATH !== undefined) {
+    process.env.PATH = nodeModulesPathPrefix + process.env.PATH;
+}
+
+gulp.task("lint", "Runs tslint over the typescript within the project", (done) => {
+    const proc = child_process.spawn("tslint", [
+        "--config", "tslint.json",
+        "--exclude", "src/node_modules",
+        "Gulpfile.ts",
+        "src/*.ts",
+        "src/test/*.ts",
+        "src/model/*.ts",
+        "src/reducers/*.ts",
+        "src/exporters/*.ts",
+        "src/adapters/*.ts",
+        "src/actions/*.ts"
+    ], {shell: true, stdio: "inherit"});
+    proc.on("close", (code: number) => {
+        if (code !== 0) return done!(code);
+        done!();
+    });
+});
 
 function createBuildStream(release?: boolean) {
   return gulp.src("src/index.ts")
@@ -46,7 +75,7 @@ gulp.task("build-release", "Does a 'build' with minification enabled", [], () =>
     );
 });
 
-gulp.task("test", "Executes the test suite", ["build"], () => {
+gulp.task("test", "Executes the test suite", ["lint", "build"], () => {
     return gulp.src("src/test/**/*.ts", {read: false})
         .pipe(mocha({reporter: "spec", timeout: 5000}));
 });

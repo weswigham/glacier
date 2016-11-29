@@ -15,6 +15,8 @@ describe("A smoke test suite", () => {
     });
 });
 
+/* tslint:disable:no-null-keyword */
+// XML parser and DOM document APIs require the usage of null :(
 function baseline(name: string, actualString: string): Promise<{expected: Document, actual: Document}> {
     expect(actualString).to.be.a("string");
     return new Promise((resolve, reject) => {
@@ -59,6 +61,7 @@ function baseline(name: string, actualString: string): Promise<{expected: Docume
         });
     });
 }
+/* tslint:enable:no-null-keyword */
 
 function dispatchSequence(model: Store<glacier.ModelState>, ...actions: glacier.AllActions[]) {
     actions.forEach(action => model.dispatch(action));
@@ -74,8 +77,8 @@ describe("glacier as a model", () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         dispatchSequence(model,
-            glacier.createUpdateMarkTypeAction('point'),
-            glacier.createUpdateDescriptionAction('Test Plot'),
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createUpdateEncodingAction({
                 x: {field: "DaysToManufacture", type: "quantitative"},
@@ -84,17 +87,17 @@ describe("glacier as a model", () => {
         );
         const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
 
-        await adapter.updateCache()
+        await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export());
         await adapter.remove();
     });
-    
+
     it("should be usable to change mark type", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         dispatchSequence(model,
-            glacier.createUpdateMarkTypeAction('line'),
-            glacier.createUpdateDescriptionAction('Test Plot'),
+            glacier.createUpdateMarkTypeAction("line"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createUpdateEncodingAction({
                 x: {field: "DaysToManufacture", type: "quantitative"},
@@ -103,17 +106,17 @@ describe("glacier as a model", () => {
         );
         const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
 
-        await adapter.updateCache()
+        await adapter.updateCache();
         await baseline("2-marks", await exporter.export());
         await adapter.remove();
     });
-    
+
     it("should be usable to change size", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         dispatchSequence(model,
-            glacier.createUpdateMarkTypeAction('point'),
-            glacier.createUpdateDescriptionAction('Test Plot'),
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(100, 900),
             glacier.createUpdateEncodingAction({
                 x: {field: "DaysToManufacture", type: "quantitative"},
@@ -122,17 +125,17 @@ describe("glacier as a model", () => {
         );
         const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
 
-        await adapter.updateCache()
+        await adapter.updateCache();
         await baseline("3-size", await exporter.export());
         await adapter.remove();
     });
-    
+
     it("should be usable to change encoding", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         dispatchSequence(model,
-            glacier.createUpdateMarkTypeAction('point'),
-            glacier.createUpdateDescriptionAction('Test Plot'),
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createUpdateEncodingAction({
                 y: {field: "DaysToManufacture", type: "quantitative"},
@@ -141,17 +144,17 @@ describe("glacier as a model", () => {
         );
         const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
 
-        await adapter.updateCache()
+        await adapter.updateCache();
         await baseline("4-encoding", await exporter.export());
         await adapter.remove();
     });
-    
+
     it("should be able to change description", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         dispatchSequence(model,
-            glacier.createUpdateMarkTypeAction('point'),
-            glacier.createUpdateDescriptionAction('Test Plot break'),
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot break"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createUpdateEncodingAction({
                 x: {field: "DaysToManufacture", type: "quantitative"},
@@ -160,7 +163,7 @@ describe("glacier as a model", () => {
         );
         const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
 
-        await adapter.updateCache()
+        await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
         await adapter.remove();
     });

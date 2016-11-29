@@ -36,6 +36,6 @@ export class SqlDataSourceAdapter implements DataAdapter {
     }
 }
 
-export function createSqlFileDataSource(store: redux.Store<ModelState>, filename:string) {
+export function createSqlFileDataSource(store: redux.Store<ModelState>, filename: string) {
     return new SqlDataSourceAdapter(store, filename);
 }

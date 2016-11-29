@@ -2,7 +2,6 @@ export * from "./model";
 export * from "./actions";
 
 import {createStore, combineReducers, Store} from "redux";
-import * as actions from "./actions";
 import * as reducers from "./reducers";
 import {ModelState} from "./model";
 
