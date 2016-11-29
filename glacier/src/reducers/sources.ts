@@ -1,12 +1,12 @@
-import {AnyDataSource, SourcesModelState, DataSource} from "../model";
+import {SourcesModelState, DataSource} from "../model";
 import {AllActions} from "../actions";
 
 type Writable<T> = {
     [K in keyof T]: T[K]
 };
 type Optional<T> = {
-    [K in keyof T]?: T[K]    
-}
+    [K in keyof T]?: T[K]
+};
 
 function filterState(state: SourcesModelState, toRemove: keyof SourcesModelState): SourcesModelState {
     const ret: Optional<Writable<SourcesModelState>> = {};
@@ -23,10 +23,7 @@ export function sources(state: SourcesModelState | undefined, action: AllActions
         throw action.error;
         // return state;
     }
-    // TODO: Update TS dependency to typescript@next once TS#11150 is merged
-    // and use commented object spead expressions in the below rather than
-    // the inelegant casts
-    switch(action.type) {
+    switch (action.type) {
         case "ADD_DATA_SOURCE": {
             // TODO: Consider issuing error if action.payload.uuid is already present in the state?
             if (state[action.payload.uuid]) return state;
@@ -34,7 +31,7 @@ export function sources(state: SourcesModelState | undefined, action: AllActions
         }
         case "REMOVE_DATA_SOURCE": {
             // TODO: Consider issuing error if action.payload.uuid is not already present in the state?
-            return {...filterState(state, action.payload.uuid)};
+            return filterState(state, action.payload.uuid);
         }
         case "UPDATE_DATA_CACHE": {
             const found = state[action.payload.uuid];

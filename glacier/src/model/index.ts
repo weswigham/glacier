@@ -23,21 +23,21 @@ export interface MarkState {
     readonly description?: string;
     readonly encoding?: Encoding;
 }
-export interface Encoding{
-    readonly x? : {},
-    readonly y? : {},
-    readonly x2? : {},
-    readonly y2? : {},
-    readonly color? : {},
-    readonly opacity? : {},
-    readonly size? : {},
-    readonly shape? : {},
-    readonly detail? : {},
-    readonly text? : {},
-    readonly path? : {},
-    readonly order? : {},
-    readonly row? : {},
-    readonly column? : {}
+export interface Encoding {
+    readonly x?: {};
+    readonly y?: {};
+    readonly x2?: {};
+    readonly y2?: {};
+    readonly color?: {};
+    readonly opacity?: {};
+    readonly size?: {};
+    readonly shape?: {};
+    readonly detail?: {};
+    readonly text?: {};
+    readonly path?: {};
+    readonly order?: {};
+    readonly row?: {};
+    readonly column?: {};
 };
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

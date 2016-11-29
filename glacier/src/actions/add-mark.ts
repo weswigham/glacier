@@ -5,5 +5,5 @@ let uuid = 0;
 export type AddMarkAction = ReduxStandardAction<"ADD_MARK", {uuid: number}>;
 
 export function createAddConfigurationAction(): AddMarkAction {
-    return { type: "ADD_MARK", payload: {uuid:uuid++}};
+    return { type: "ADD_MARK", payload: {uuid: uuid++}};
 }
