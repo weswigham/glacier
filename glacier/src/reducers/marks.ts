@@ -1,14 +1,6 @@
 import {MarkState, AnyDataSource} from "../model";
 import {AllActions} from "../actions";
 
-function clone(o: any):{}{
-    let ret: any = {};
-    Object.keys(o).forEach(function(val: any){
-        ret[val] = o[val];
-    })
-    return ret;
-}
-
 export function marks(state: MarkState | undefined, action: AllActions): MarkState {
     if (!state) return {}
     if (action.error) {
@@ -18,25 +10,18 @@ export function marks(state: MarkState | undefined, action: AllActions): MarkSta
     }
     switch(action.type) {
         case "UPDATE_MARK": {
-            let newState = Object.create(state);
-            newState = clone(state);
             switch(action.payload.settingName){
                 case "desc": {
-                    (newState as any).description = action.payload.settingValue
-                    return newState;
+                    return {...state, description: action.payload.settingValue};
                 }
                 case "encoding":{
-                    (newState as any).encoding = action.payload.settingValue
-                    return newState;
+                    return {...state, encoding: action.payload.settingValue};
                 }
                 case "size": {
-                    (newState as any).width = (action.payload.settingValue as any).width;
-                    (newState as any).height = (action.payload.settingValue as any).height;
-                    return newState;
+                    return {...state, width: action.payload.settingValue.width, height: action.payload.settingValue.height};
                 }
                 case "markType": {
-                    (newState as any).mark = action.payload.settingValue
-                    return newState;
+                    return {...state, mark: action.payload.settingValue};
                 }
                 default: return state;
             }

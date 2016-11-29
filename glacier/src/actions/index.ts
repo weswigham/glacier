@@ -8,6 +8,12 @@ export * from "./configure-mark";
 import {AddDataSourceAction} from "./add-data-source";
 import {RemoveDataSourceAction} from "./remove-data-source";
 import {UpdateDataCacheAction} from "./update-data-cache";
-import {UpdateMarkAction} from "./configure-mark";
+import {UpdateDescriptionAction, UpdateEncodingAction, UpdateMarkTypeAction, UpdateSizeAction} from "./configure-mark";
 
-export type AllActions = AddDataSourceAction<string, {}, {}> | RemoveDataSourceAction | UpdateDataCacheAction<{}> | UpdateMarkAction<{}>;
+export type AllActions = AddDataSourceAction<string, {}, {}>
+    | RemoveDataSourceAction
+    | UpdateDataCacheAction<{}>
+    | UpdateDescriptionAction
+    | UpdateEncodingAction
+    | UpdateMarkTypeAction
+    | UpdateSizeAction;
