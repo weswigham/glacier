@@ -11,6 +11,6 @@
         "noFallthroughCasesInSwitch": true,
         "preserveConstEnums": true,
         "removeComments": false,
-        "lib": ["es5", "es2015.promise"]
+        "lib": ["es5", "es2015.promise", "dom"]
     }
 }

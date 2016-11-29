@@ -47,5 +47,6 @@ jspm_packages
 glacier/dist/local
 glacier/dist/**/*.js
 glacier/dist/**/*.d.ts
+data/baselines/local
 .DS_Store
 
