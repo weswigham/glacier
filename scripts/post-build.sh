@@ -8,9 +8,10 @@ then
   exit 0
 fi
 
+cp -R ../data/baselines/ ../docs/baselines
+
 rev=$(git rev-parse --short HEAD)
 
-cd stage/_book
 
 git init
 git config user.name "Zach Calfin"
