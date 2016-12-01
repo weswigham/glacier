@@ -8,7 +8,7 @@ then
   exit 0
 fi
 
-cp -R ../data/baselines/ ../docs/baselines
+cp -R ./data/baselines/ ./docs/baselines
 
 rev=$(git rev-parse --short HEAD)
 
@@ -22,6 +22,6 @@ git fetch upstream
 
 git checkout master
 
-git add ../docs/baselines
+git add ./docs/baselines
 git commit -m "rebuild pages at ${rev}"
 git push
