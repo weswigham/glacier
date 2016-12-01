@@ -1,39 +1,40 @@
 language: node_js
 node_js:
-- '6'
+  - '6'
+
 os:
-- linux
+  - linux
+
 branches:
   only:
-  - master
+    - master
+
 before_install:
-- chmod +x ./scripts/travis.sh
-- chmod +x ./scripts/post-build.sh
-script: "./scripts/travis.sh"
+ - chmod +x ./scripts/travis.sh
+
+script: ./scripts/travis.sh
+
 test: 
 cache:
   directories:
-  - glacier/node_modules
-  - gluon/node_modules
+    - glacier/node_modules
+    - gluon/node_modules
+
 notifications:
   email:
     on_success: never
     on_failure: change
+
 env:
-  matrix:
   - CXX=g++-4.8
-  global:
-    secure: ThHhI7tD9kcjX6mSV1rXip+Lp6cktn0tGeSENKzlV8SCtYUXgaH3gxvfHzU6HbOyhGq6VUNnxP3j7nFuSO4N00Vgku6QdcnUOMnS4DnPK3TU3R78xWembJi6gnHv54K1VX2m5F6BMb5jrjHgjJqOJGv0uYupY0grUNthw4JpRC89W1+5sE5uhIl/xGE2WdGX9zuq9Dogcq/4ENCIz9lZWQgluHgE+x+k3h4HjM2k4sRXQp6cFCiss/PSqJ6Jq/UutfTyVX9A8b17LPv3ahjaQ0odQT/J9fXORvU4sox+P6CGxBWX3ioDV5K/mEMfHI9ScvFAVuZzIqsfIZ1GfMRmIh0mEzBDYIZSLTNGVc79xgaUFHZtZFTRnvdS2/50HWV71qDIN1hwtolLZaq1Pr7LO+FtyKV5LuXLssX7T6zGIhBL4Su0Q9mJ1QaFhAF/1CxZD0LDm5VLlYsz4itic6QBAukdRRVjIY8xnO5mnaabYYsVJ96+7DBWTN+5mlR/Je6P+///OWIk7co3fi0yNPrAxn0cXFXUmFNIcD4MFOd9J1ei4+GdyG6ggzjMNX6pvqDyLtcjYM9diwKbYlAOG39UEwa2FAKgbTtohddatL4Yo/HVWneVCaK3iA+EY8lNB+V/tbxXMbJMt1psFwjHsYBtdBGqAeumXk8fVyS+OnmNbQc=
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
     packages:
-    - libcairo2-dev
-    - libjpeg-dev
-    - libpango1.0-dev
-    - libgif-dev
-    - build-essential
-    - g++-4.8
-after_success:
-    - ./scripts/post-build.sh
+      - libcairo2-dev
+      - libjpeg-dev
+      - libpango1.0-dev
+      - libgif-dev
+      - build-essential
+      - g++-4.8
