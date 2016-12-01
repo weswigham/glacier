@@ -22,6 +22,6 @@ git fetch upstream
 
 git checkout master
 
-git add ../docs/baselines
+git add ./docs/baselines
 git commit -m "rebuild pages at ${rev}"
 git push
