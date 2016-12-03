@@ -14,7 +14,7 @@ rev=$(git rev-parse --short HEAD)
 
 
 git init
-git config user.name "Zach Calfin"
+git config user.name "phillip092"
 git config user.email "calfinz@gmail.com"
 
 git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
