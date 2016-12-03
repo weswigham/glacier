@@ -8,20 +8,25 @@ then
   exit 0
 fi
 
-cp -R ./data/baselines/ ./docs/baselines
+msg=$(git log -1 --pretty=%B)
+if [[ "$msg" =~ ^rebuild.pages.* ]]
+then
+  echo "Not building pages in response to a pages build commit."
+  exit 0
+fi
 
 rev=$(git rev-parse --short HEAD)
 
-
 git init
-git config user.name "phillip092"
+git config user.name "Travis CI"
 git config user.email "calfinz@gmail.com"
 
 git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
-git checkout master
+git checkout upstream/master
+cp -R ./data/baselines/ ./docs/baselines
 
 git add ./docs/baselines
 git commit -m "rebuild pages at ${rev}"
-git push
+git push upstream master
