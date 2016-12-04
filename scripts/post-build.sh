@@ -2,6 +2,12 @@
 
 set -o errexit -o nounset
 
+if [ "$TRAVIS_PULL_REQUEST" != "false" ]
+then
+  echo "Not running pages build on a PR"
+  exit 0
+fi
+
 if [ "$TRAVIS_BRANCH" != "master" ]
 then
   echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
@@ -25,9 +31,10 @@ git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
 git checkout upstream/master
-cp -R ./data/baselines/ ./docs/baselines
-
-git add ./docs/baselines
-git commit -m "rebuild pages at ${rev}"
 git checkout -b new-pages-master
+
+cp -R ./data/baselines/ ./docs/baselines
+git add ./docs/baselines
+
+git commit -m "rebuild pages at ${rev}"
 git push upstream master
