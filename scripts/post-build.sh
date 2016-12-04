@@ -2,6 +2,12 @@
 
 set -o errexit -o nounset
 
+if [ "$TRAVIS_PULL_REQUEST" != "false" ]
+then
+  echo "Not running pages build on a PR"
+  exit 0
+fi
+
 if [ "$TRAVIS_BRANCH" != "master" ]
 then
   echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
