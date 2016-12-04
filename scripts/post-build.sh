@@ -37,4 +37,4 @@ cp -R ./data/baselines/ ./docs/baselines
 git add ./docs/baselines
 
 git commit -m "rebuild pages at ${rev}"
-git push upstream master
+git push -u upstream master
