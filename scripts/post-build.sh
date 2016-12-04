@@ -14,7 +14,7 @@ then
   exit 0
 fi
 
-if [ "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]
+if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "" ]
 then
   echo "Not running on pull, only on pull."
   exit 0
