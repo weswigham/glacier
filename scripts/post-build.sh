@@ -8,9 +8,15 @@ then
   exit 0
 fi
 
-if [ "$TRAVIS_BRANCH" = "master" ]
+if [ "$TRAVIS_BRANCH" != "master" ]
 then
-  echo "This commit was made against master and not $TRAVIS_BRANCH! No deploy!"
+  echo "This PR was not made against master! No deploy!"
+  exit 0
+fi
+
+if [ "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]
+then
+  echo "Not running on pull, only on pull."
   exit 0
 fi
 
@@ -30,12 +36,12 @@ git config user.email "calfinz@gmail.com"
 git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
-git checkout $TRAVIS_BRANCH
+git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
 cp -R ./data/baselines/ ./docs/baselines
 git add ./docs/baselines
 
 git commit -m "rebuild pages at ${rev}"
-git push -u upstream $TRAVIS_BRANCH
+git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH
 git log -3
 git push
