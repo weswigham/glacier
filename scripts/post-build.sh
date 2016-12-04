@@ -30,11 +30,12 @@ git config user.email "calfinz@gmail.com"
 git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
-git checkout upstream/master
-git checkout -b new-pages-master
+git checkout master
 
 cp -R ./data/baselines/ ./docs/baselines
 git add ./docs/baselines
 
 git commit -m "rebuild pages at ${rev}"
 git push -u upstream master
+git log -3
+git push
