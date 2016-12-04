@@ -25,9 +25,10 @@ git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
 git checkout upstream/master
-cp -R ./data/baselines/ ./docs/baselines
-
-git add ./docs/baselines
-git commit -m "rebuild pages at ${rev}"
 git checkout -b new-pages-master
+
+cp -R ./data/baselines/ ./docs/baselines
+git add ./docs/baselines
+
+git commit -m "rebuild pages at ${rev}"
 git push upstream master
