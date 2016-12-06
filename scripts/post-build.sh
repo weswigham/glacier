@@ -2,26 +2,46 @@
 
 set -o errexit -o nounset
 
-if [ "$TRAVIS_BRANCH" != "master" ]
+if [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
-  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  echo "Not running pages build when branch is not in a PR"
   exit 0
 fi
 
-cp -R ./data/baselines/ ./docs/baselines
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This PR was not made against master! No deploy!"
+  exit 0
+fi
+
+if [ "$TRAVIS_PULL_REQUEST_BRANCH" = "" ]
+then
+  echo "Not running on pull, only on pull."
+  exit 0
+fi
+
+msg=$(git log -1 --pretty=%B)
+if [[ "$msg" =~ ^rebuild.pages.* ]]
+then
+  echo "Not building pages in response to a pages build commit."
+  exit 0
+fi
 
 rev=$(git rev-parse --short HEAD)
 
-
 git init
-git config user.name "phillip092"
+git config user.name "Travis CI"
 git config user.email "calfinz@gmail.com"
 
 git remote add upstream "https://$GH_TOKEN@github.com/glimpseio/glacier"
 git fetch upstream
 
-git checkout master
+git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
+cp -R ./data/baselines/ ./docs/baselines
 git add ./docs/baselines
+
 git commit -m "rebuild pages at ${rev}"
+git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH
+git log -3
 git push
