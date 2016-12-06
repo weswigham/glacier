@@ -7,25 +7,57 @@
   <title>Travis Output</title>
   <!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
 
+<style>
+	body {
+		background-color:#37474F;
+	}
+	table{
+		background-color:#FFFFFF;
+		margin:0 auto;
+	}
+	table td {
+		max-width: 450px;
+		text-align:center;
+		margin:0 auto;
+	}
+	table, th, td{
+		border: 1px solid #37474F;
+	}
+	img{
+		max-width:450px;
+	}
+	
+</style>
+
 </head>
 
+
+
 <body>
-    <div>
-        <img src="./baselines/local/1-structuredData.svg" />
-        <img src="./baselines/reference/1-structuredData.svg" />
-    </div>
-    <div>
-        <img src="./baselines/local/2-marks.svg" />
-        <img src="./baselines/reference/2-marks.svg" />
-    </div>
-    <div>
-        <img src="./baselines/local/3-size.svg" />
-        <img src="./baselines/reference/3-size.svg" />
-    </div>
-    <div>
-        <img src="./baselines/local/4-encoding.svg" />
-        <img src="./baselines/reference/4-encoding.svg" />
-    </div>
+	
+	<table>
+		<tr>
+			<th>Generated</th>	
+			<th>Reference</th>
+		</tr>
+		<tr>
+			<td><img src="./baselines/local/1-structuredData.svg" /></td>
+			<td><img src="./baselines/reference/1-structuredData.svg" /></td>
+		</tr>		
+		<tr>
+			<td><img src="./baselines/local/2-marks.svg" /></td>
+			<td><img src="./baselines/reference/2-marks.svg" /></td>
+		</tr>		
+		<tr>
+			<td><img src="./baselines/local/3-size.svg" /></td>
+			<td><img src="./baselines/reference/3-size.svg" /></td>
+		</tr>		
+		<tr>
+			<td><img src="./baselines/local/4-encoding.svg" /></td>
+			<td><img src="./baselines/reference/4-encoding.svg" /></td>
+		</tr>
+	</table>
+
 
 </body>
 </html>
