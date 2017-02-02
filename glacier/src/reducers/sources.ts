@@ -1,8 +1,8 @@
-import {SourcesModelState, DataSource} from "../model";
+import {SourcesModelState, DataSource, AnyDataSource} from "../model";
 import {AllActions} from "../actions";
 
 function filterState(state: SourcesModelState, toRemove: number): SourcesModelState {
-    const ret: Partial<SourcesModelState> = {};
+    const ret: {[index: number]: AnyDataSource} = {};
     Object.keys(state).map(k => +k).filter(k => k !== toRemove).forEach(key => {
         ret[key] = state[key];
     });
