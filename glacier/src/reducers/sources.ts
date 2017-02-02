@@ -8,7 +8,7 @@ type Optional<T> = {
     [K in keyof T]?: T[K]
 };
 
-function filterState(state: SourcesModelState, toRemove: keyof SourcesModelState): SourcesModelState {
+function filterState(state: SourcesModelState, toRemove: number): SourcesModelState {
     const ret: Optional<Writable<SourcesModelState>> = {};
     Object.keys(state).map(k => +k).filter(k => k !== toRemove).forEach(key => {
         ret[key] = state[key];
