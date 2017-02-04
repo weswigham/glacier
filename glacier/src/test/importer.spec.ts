@@ -167,4 +167,22 @@ describe("glacier as a model", () => {
         await baseline("1-structuredData", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
         await adapter.remove();
     });
+
+    it("should create an action to add fields", () => {
+        const fields = [{name: "name1", table: "table1"}, {name: "name2", table: "table2"}];
+        const expectedAction = {type: "ADD_FIELDS", payload: fields};
+        const action = glacier.createAddFieldsAction(fields);
+
+        expect(action.type).to.equal(expectedAction.type);
+        expect(action.payload).to.equal(expectedAction.payload);
+    });
+
+    it("should create an action to remove fields", () => {
+        const fields = [{name: "name1", table: "table1"}, {name: "name2", table: "table2"}];
+        const expectedAction = {type: "REMOVE_FIELDS", payload: fields};
+        const action = glacier.createRemoveFieldsAction(fields);
+
+        expect(action.type).to.equal(expectedAction.type);
+        expect(action.payload).to.equal(expectedAction.payload);
+    });
 });

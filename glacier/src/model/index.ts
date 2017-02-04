@@ -46,9 +46,7 @@ export interface Field {
     readonly table: string;
 }
 
-export interface FieldState {
-    readonly fields: Field[];
-}
+export type FieldState = Field[];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}
