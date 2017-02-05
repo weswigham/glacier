@@ -38,7 +38,7 @@ git fetch upstream
 
 git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
-cp -R ./data/baselines/ ./docs/baselines
+cp -R ./data/baselines/ ./docs
 git add ./docs/baselines
 
 git commit -m "rebuild pages at ${rev}"
