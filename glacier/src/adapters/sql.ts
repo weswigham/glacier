@@ -20,6 +20,31 @@ export class SqlDataSourceAdapter implements DataAdapter {
         this._conn = connection;
         store.dispatch(action);
         this.updateCache();
+    };
+    describeTables() {
+         return this._conn
+            .select("name")
+            .from("sqlite_master")
+            .where("type", "table")
+            .returning("name")
+            .then((results: [{name: string}]) => {
+                return results.map(table => {
+                    return table.name;
+                });
+            });
+    }
+    describeColumns(table: string) {
+        this._conn
+        .raw("Pragma table_info(" + table + ")")
+        .then((data: {"name": string}[]) => {
+            let columns = data.map(column => {
+                return column.name;
+            })
+            .filter(name => {
+                return name != "rowguid";
+            });
+            return columns;
+        });
     }
     updateCache() {
         return this._conn.select("DaysToManufacture", "ListPrice").from("Product").then(data => {
