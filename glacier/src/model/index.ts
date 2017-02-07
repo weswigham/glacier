@@ -44,12 +44,10 @@ export interface Encoding {
 export interface Field {
     readonly name: string;
     readonly table: string;
-}
-
-export interface FieldState {
-    readonly fields: Field[];
     readonly dataSource: string;
 }
+
+export type FieldState = Field[];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}
