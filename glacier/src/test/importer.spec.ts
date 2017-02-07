@@ -169,20 +169,42 @@ describe("glacier as a model", () => {
     });
 
     it("should create an action to add fields", () => {
+        let model = glacier.createModel();
         const fields = [{name: "name1", table: "table1"}, {name: "name2", table: "table2"}];
-        const expectedAction = {type: "ADD_FIELDS", payload: fields};
-        const action = glacier.createAddFieldsAction(fields);
+        dispatchSequence(model,
+            glacier.createAddFieldsAction(fields, "test")
+        );
+        let state = model.getState();
 
-        expect(action.type).to.equal(expectedAction.type);
-        expect(action.payload).to.equal(expectedAction.payload);
+        let expectName = fields[0].name;
+        let actualName = state.fields.fields[0].name;
+        expect(actualName).to.equal(expectName);
+
+        let expectTable = fields[0].table;
+        let actualTable = state.fields.fields[0].table;
+        expect(actualTable).to.equal(expectTable);
+
+        expect(state.fields.fields.length).to.equal(fields.length);
     });
 
     it("should create an action to remove fields", () => {
-        const fields = [{name: "name1", table: "table1"}, {name: "name2", table: "table2"}];
-        const expectedAction = {type: "REMOVE_FIELDS", payload: fields};
-        const action = glacier.createRemoveFieldsAction(fields);
+        let model = glacier.createModel();
+        const addFields = [{name: "name1", table: "table1"}, {name: "name2", table: "table2"}];
+        const removeFields = [{name: "name2", table: "table2"}];
+        dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields, "test"),
+            glacier.createRemoveFieldsAction(removeFields, "test")
+        );
+        let state = model.getState();
+        expect(state.fields.fields.length).to.equal(1);
 
-        expect(action.type).to.equal(expectedAction.type);
-        expect(action.payload).to.equal(expectedAction.payload);
+        let expectName = addFields[0].name;
+        let actualName = state.fields.fields[0].name;
+        expect(actualName).to.equal(expectName);
+
+        let expectTable = addFields[0].table;
+        let actualTable = state.fields.fields[0].table;
+
+        expect(actualTable).to.equal(expectTable);
     });
 });
