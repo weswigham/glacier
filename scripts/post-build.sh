@@ -39,7 +39,10 @@ git fetch upstream
 git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
 cp -R ./data/baselines/ ./docs
+npm install handlebars
+node ./docs/template.js
 git add ./docs/baselines
+git add ./docs/index.html
 
 git commit -m "rebuild pages at ${rev}"
 git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH

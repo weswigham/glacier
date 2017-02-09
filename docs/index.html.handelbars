@@ -1,0 +1,70 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Travis Output</title>
+  <!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
+
+<style>
+	body {
+		background-color:#37474F;
+        font-family: Arial;
+	}
+	table{
+		background-color:#FFFFFF;
+		margin:0 auto;
+	}
+	table td {
+		max-width: 450px;
+		text-align:center;
+		margin:0 auto;
+	}
+	table, th, td{
+		border: 1px solid #37474F;
+	}
+	img{
+		max-width:450px;
+	}
+
+    #timestamp{
+        color: #FFFFFF;
+        height:25px;
+        width: 904px;
+        margin: 0 auto;
+    }
+	
+</style>
+
+</head>
+
+
+
+<body>
+	
+    <div id="timestamp">
+        Last Generated: {{date}}
+    </div>
+
+	<table>
+		<tr>
+			<th>Generated</th>	
+			<th>Reference</th>
+		</tr>
+        {{#each files}}
+            <tr>
+			    <td><img src="./baselines/local/{{this}}" /></td>
+			    <td><img src="./baselines/reference/{{this}}" /></td>
+		    </tr>	
+        {{/each}}
+	</table>
+
+    
+
+
+</body>
+</html>
+
+
+
