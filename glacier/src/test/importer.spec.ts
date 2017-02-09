@@ -172,7 +172,7 @@ describe("glacier as a model", () => {
         let model = glacier.createModel();
         const fields = [{name: "name1", table: "table1", dataSource: "test"}, {name: "name2", table: "table2", dataSource: "test"}];
         dispatchSequence(model,
-            glacier.createAddFieldsAction(fields, "test")
+            glacier.createAddFieldsAction(fields)
         );
         let state = model.getState();
 
@@ -192,8 +192,8 @@ describe("glacier as a model", () => {
         const addFields = [{name: "name1", table: "table1", dataSource: "test"}, {name: "name2", table: "table2", dataSource: "test"}];
         const removeFields = [{name: "name2", table: "table2", dataSource: "test"}];
         dispatchSequence(model,
-            glacier.createAddFieldsAction(addFields, "test"),
-            glacier.createRemoveFieldsAction(removeFields, "test")
+            glacier.createAddFieldsAction(addFields),
+            glacier.createRemoveFieldsAction(removeFields)
         );
         let state = model.getState();
         expect(state.fields.length).to.equal(1);
