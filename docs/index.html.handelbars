@@ -44,7 +44,7 @@
 <body>
 	
     <div id="timestamp">
-        Last Generated: Thu Feb 09 2017 01:59:55 GMT+0000 (UTC)
+        Last Generated: {{date}}
     </div>
 
 	<table>
@@ -52,22 +52,12 @@
 			<th>Generated</th>	
 			<th>Reference</th>
 		</tr>
+        {{#each files}}
             <tr>
-			    <td><img src="./baselines/local/1-structuredData.svg" /></td>
-			    <td><img src="./baselines/reference/1-structuredData.svg" /></td>
+			    <td><img src="./baselines/local/{{this}}" /></td>
+			    <td><img src="./baselines/reference/{{this}}" /></td>
 		    </tr>	
-            <tr>
-			    <td><img src="./baselines/local/2-marks.svg" /></td>
-			    <td><img src="./baselines/reference/2-marks.svg" /></td>
-		    </tr>	
-            <tr>
-			    <td><img src="./baselines/local/3-size.svg" /></td>
-			    <td><img src="./baselines/reference/3-size.svg" /></td>
-		    </tr>	
-            <tr>
-			    <td><img src="./baselines/local/4-encoding.svg" /></td>
-			    <td><img src="./baselines/reference/4-encoding.svg" /></td>
-		    </tr>	
+        {{/each}}
 	</table>
 
     

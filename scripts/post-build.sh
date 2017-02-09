@@ -2,6 +2,8 @@
 
 set -o errexit -o nounset
 
+git pull
+
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]
 then
   echo "Not running pages build when branch is not in a PR"
@@ -39,7 +41,12 @@ git fetch upstream
 git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
 cp -R ./data/baselines/ ./docs
+cd ./glacier
+npm install handlebars
+cd ../
+node ./docs/template.js
 git add ./docs/baselines
+git add ./docs/index.html
 
 git commit -m "rebuild pages at ${rev}"
 git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH
