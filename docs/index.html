@@ -10,6 +10,7 @@
 <style>
 	body {
 		background-color:#37474F;
+        font-family: Arial;
 	}
 	table{
 		background-color:#FFFFFF;
@@ -26,6 +27,13 @@
 	img{
 		max-width:450px;
 	}
+
+    #timestamp{
+        color: #FFFFFF;
+        height:25px;
+        width: 904px;
+        margin: 0 auto;
+    }
 	
 </style>
 
@@ -35,30 +43,42 @@
 
 <body>
 	
+    <div id="timestamp">
+        Last Generated: Thu Feb 09 2017 01:26:56 GMT+0000 (UTC)
+    </div>
+
 	<table>
 		<tr>
 			<th>Generated</th>	
 			<th>Reference</th>
 		</tr>
-		<tr>
-			<td><img src="./baselines/local/1-structuredData.svg" /></td>
-			<td><img src="./baselines/reference/1-structuredData.svg" /></td>
-		</tr>		
-		<tr>
-			<td><img src="./baselines/local/2-marks.svg" /></td>
-			<td><img src="./baselines/reference/2-marks.svg" /></td>
-		</tr>		
-		<tr>
-			<td><img src="./baselines/local/3-size.svg" /></td>
-			<td><img src="./baselines/reference/3-size.svg" /></td>
-		</tr>		
-		<tr>
-			<td><img src="./baselines/local/4-encoding.svg" /></td>
-			<td><img src="./baselines/reference/4-encoding.svg" /></td>
-		</tr>
+            <tr>
+			    <td><img src="./baselines/local/.gitkeep" /></td>
+			    <td><img src="./baselines/reference/.gitkeep" /></td>
+		    </tr>	
+            <tr>
+			    <td><img src="./baselines/local/1-structuredData.svg" /></td>
+			    <td><img src="./baselines/reference/1-structuredData.svg" /></td>
+		    </tr>	
+            <tr>
+			    <td><img src="./baselines/local/2-marks.svg" /></td>
+			    <td><img src="./baselines/reference/2-marks.svg" /></td>
+		    </tr>	
+            <tr>
+			    <td><img src="./baselines/local/3-size.svg" /></td>
+			    <td><img src="./baselines/reference/3-size.svg" /></td>
+		    </tr>	
+            <tr>
+			    <td><img src="./baselines/local/4-encoding.svg" /></td>
+			    <td><img src="./baselines/reference/4-encoding.svg" /></td>
+		    </tr>	
 	</table>
+
+    
 
 
 </body>
 </html>
+
+
 
