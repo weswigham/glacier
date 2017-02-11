@@ -18,12 +18,14 @@ export function fields(state: FieldState | undefined, action: AllActions): Field
                     field => item.name === field.name && item.table === field.table && item.dataSource === field.dataSource
                 )
             );
+
             if (validFields.length !== action.payload.fields.length) throw new Error("Field not in state.");
-            for (const field of validFields) {
-                validFields = state.filter(item =>
-                    field.name !== item.name && field.table !== item.table && field.dataSource !== item.dataSource);
-            }
-            return validFields;
+            let remainingFields = state.filter(
+                item => !satisfies(validFields,
+                    field => item.name === field.name && item.table === field.table && item.dataSource === field.dataSource
+                )
+            );
+            return remainingFields;
         }
         default: return state;
     }
