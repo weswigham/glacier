@@ -198,17 +198,23 @@ describe("glacier as a model", () => {
         expect(state.fields.length).to.equal(fields.length);
     });
 
-    it("should create an action to remove fields", () => {
+    it("should create an action to remove fields", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}, {name: "Weight", table: "Product", dataSource: adapter.uuid}];
         const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
-            glacier.createRemoveFieldsAction(removeFields)
+            glacier.createRemoveFieldsAction(removeFields),
+            glacier.createUpdateMarkTypeAction("bar"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createUpdateEncodingAction({
+                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
+                y: {field: "Weight", type: "quantitative"},
+        })
         );
         let state = model.getState();
-        expect(state.fields.length).to.equal(1);
+        expect(state.fields.length).to.equal(2);
 
         let expectName = addFields[0].name;
         let actualName = state.fields[0].name;
@@ -218,5 +224,11 @@ describe("glacier as a model", () => {
         let actualTable = state.fields[0].table;
 
         expect(actualTable).to.equal(expectTable);
+
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
+
+        await adapter.updateCache();
+        await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
+        await adapter.remove();
     });
 });
