@@ -44,7 +44,7 @@ export interface Encoding {
 export interface Field {
     readonly name: string;
     readonly table: string;
-    readonly dataSource: string;
+    readonly dataSource: number;
 }
 
 export type FieldState = Field[];

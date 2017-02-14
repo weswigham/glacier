@@ -8,10 +8,10 @@ import {createAddDataSourceAction, createUpdateDataCacheAction, createRemoveData
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
 export class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
-    private _uuid: number;
+    uuid: number;
     constructor(private store: redux.Store<ModelState>, filename: string) {
         const action = createAddDataSourceAction("sqlite-file", {path: filename}, {});
-        this._uuid = action.payload.uuid;
+        this.uuid = action.payload.uuid;
         const connection = knex({
             client: "sqlite3",
             connection: { filename },
@@ -47,15 +47,27 @@ export class SqlDataSourceAdapter implements DataAdapter {
         });
     }
     updateCache() {
-        return this._conn.select("DaysToManufacture", "ListPrice").from("Product").then(data => {
-            const action = createUpdateDataCacheAction(this._uuid, data);
+        let state = this.store.getState();
+        let fields: {[index: string]: string[]} = state.fields.filter(item =>
+             item.dataSource === this.uuid
+        )
+        .reduce((prev, curr, index) => {
+            prev[curr.table] = prev[curr.table] || [];
+            prev[curr.table].push(curr.name);
+            return prev;
+        }, {} as {[index: string]: string[]});
+
+        return Promise.all(Object.keys(fields).map(key => {
+            return this._conn.select(...fields[key]).from(key).then(data => {
+            const action = createUpdateDataCacheAction(this.uuid, data);
             this.store.dispatch(action);
         }, err => {
             this.store.dispatch({type: "UPDATE_DATA_CACHE", error: err});
-        });
+            });
+        }));
     }
     remove() {
-        const action = createRemoveDataSourceAction(this._uuid);
+        const action = createRemoveDataSourceAction(this.uuid);
         this.store.dispatch(action);
         return Promise.resolve();
     }
