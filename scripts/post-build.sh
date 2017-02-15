@@ -22,12 +22,7 @@ then
   exit 0
 fi
 
-msg=$(git log -1 --pretty=%B)
-if [[ "$msg" =~ ^rebuild.pages.* ]]
-then
-  echo "Not building pages in response to a pages build commit."
-  exit 0
-fi
+
 
 rev=$(git rev-parse --short HEAD)
 
@@ -40,15 +35,25 @@ git fetch upstream
 
 git checkout $TRAVIS_PULL_REQUEST_BRANCH
 
-cp -R ./data/baselines/ ./docs
-cd ./glacier
-npm install handlebars
-cd ../
-node ./docs/template.js
-git add ./docs/baselines
-git add ./docs/index.html
+msg=$(git log -1 --pretty=%B)
+if [[ "$msg" =~ ^rebuild.pages.* ]]
+then
+  echo "Not building pages in response to a pages build commit."
+  exit 0
+fi
 
-git commit -m "rebuild pages at ${rev}"
-git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH
-git log -3
-git push
+cp -R ./data/baselines/ ./docs
+
+stats=$(git status ./docs -s)
+echo $stats
+if [[ ! "$stats" =~ ^$ ]]
+then
+  npm install handlebars
+  node ./docs/template.js
+  git add ./docs/baselines
+  git add ./docs/index.html
+  git commit -m "rebuild pages at ${rev}"
+  git push -u upstream $TRAVIS_PULL_REQUEST_BRANCH
+  git log -3
+  git push
+fi
