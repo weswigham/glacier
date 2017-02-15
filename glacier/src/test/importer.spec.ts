@@ -76,7 +76,9 @@ describe("glacier as a model", () => {
     it("should be usable as a tool to consume structured data and emit visualizations", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
@@ -85,7 +87,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
 
         await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export());
@@ -95,7 +97,9 @@ describe("glacier as a model", () => {
     it("should be usable to change mark type", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("line"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
@@ -104,7 +108,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
 
         await adapter.updateCache();
         await baseline("2-marks", await exporter.export());
@@ -114,7 +118,9 @@ describe("glacier as a model", () => {
     it("should be usable to change size", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(100, 900),
@@ -123,7 +129,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
 
         await adapter.updateCache();
         await baseline("3-size", await exporter.export());
@@ -133,7 +139,9 @@ describe("glacier as a model", () => {
     it("should be usable to change encoding", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
@@ -142,7 +150,7 @@ describe("glacier as a model", () => {
                 x: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
 
         await adapter.updateCache();
         await baseline("4-encoding", await exporter.export());
@@ -152,7 +160,9 @@ describe("glacier as a model", () => {
     it("should be able to change description", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
         dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot break"),
             glacier.createUpdateSizeAction(255, 264),
@@ -161,10 +171,64 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
         })
         );
-        const exporter = glacier.createSvgExporter(model, (adapter as any)._uuid);
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
 
         await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
+        await adapter.remove();
+    });
+
+    it("should create an action to add fields", () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const fields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
+        dispatchSequence(model,
+            glacier.createAddFieldsAction(fields)
+        );
+        let state = model.getState();
+
+        let expectName = fields[0].name;
+        let actualName = state.fields[0].name;
+        expect(actualName).to.equal(expectName);
+
+        let expectTable = fields[0].table;
+        let actualTable = state.fields[0].table;
+        expect(actualTable).to.equal(expectTable);
+
+        expect(state.fields.length).to.equal(fields.length);
+    });
+
+    it("should create an action to remove fields", async() => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}, {name: "Weight", table: "Product", dataSource: adapter.uuid}];
+        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
+        dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
+            glacier.createRemoveFieldsAction(removeFields),
+            glacier.createUpdateMarkTypeAction("bar"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createUpdateEncodingAction({
+                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
+                y: {field: "Weight", type: "quantitative"},
+        })
+        );
+        let state = model.getState();
+        expect(state.fields.length).to.equal(2);
+
+        let expectName = addFields[0].name;
+        let actualName = state.fields[0].name;
+        expect(actualName).to.equal(expectName);
+
+        let expectTable = addFields[0].table;
+        let actualTable = state.fields[0].table;
+
+        expect(actualTable).to.equal(expectTable);
+
+        const exporter = glacier.createSvgExporter(model, adapter.uuid);
+
+        await adapter.updateCache();
+        await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
         await adapter.remove();
     });
 });

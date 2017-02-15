@@ -4,10 +4,14 @@ export * from "./add-data-source";
 export * from "./remove-data-source";
 export * from "./update-data-cache";
 export * from "./configure-mark";
+export * from "./add-fields";
+export * from "./remove-fields";
 
 import {AddDataSourceAction} from "./add-data-source";
 import {RemoveDataSourceAction} from "./remove-data-source";
 import {UpdateDataCacheAction} from "./update-data-cache";
+import {AddFieldsAction} from "./add-fields";
+import {RemoveFieldsAction} from "./remove-fields";
 import {UpdateDescriptionAction, UpdateEncodingAction, UpdateMarkTypeAction, UpdateSizeAction} from "./configure-mark";
 
 export type AllActions = AddDataSourceAction<string, {}, {}>
@@ -16,4 +20,6 @@ export type AllActions = AddDataSourceAction<string, {}, {}>
     | UpdateDescriptionAction
     | UpdateEncodingAction
     | UpdateMarkTypeAction
-    | UpdateSizeAction;
+    | UpdateSizeAction
+    | AddFieldsAction
+    | RemoveFieldsAction;

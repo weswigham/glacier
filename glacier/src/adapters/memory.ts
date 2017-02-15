@@ -24,6 +24,7 @@ export function createMemoryDataSource(store: redux.Store<ModelState>): MemoryDa
         store.dispatch(action);
         return Promise.resolve();
     };
+    func.uuid = uuid;
     store.dispatch(createAction);
     return func;
 }
