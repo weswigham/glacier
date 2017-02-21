@@ -12,7 +12,7 @@ export interface DataSource<T extends string, M, C> {
     readonly type: T;
     readonly metadata: M;
     readonly cache: C;
-    readonly uuid: number;
+    readonly id: number;
 }
 
 export interface MarkState {
@@ -47,7 +47,9 @@ export interface Field {
     readonly dataSource: number;
 }
 
-export type FieldState = Field[];
+export type FieldDescriptor = Field & { id: number; }
+
+export type FieldState = FieldDescriptor[];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

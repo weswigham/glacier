@@ -27,6 +27,17 @@ export function fields(state: FieldState | undefined, action: AllActions): Field
             );
             return remainingFields;
         }
+        case "REMOVE_FIELDS_BY_ID": {
+            let validFields = action.payload.fields.filter(
+                item => satisfies(state, field => field.id === item)
+            );
+
+            if (validFields.length !== action.payload.fields.length) throw new Error("Field not in state.");
+            let remainingFields = state.filter(
+                item => !satisfies(validFields, field => item.id === field)
+            );
+            return remainingFields;
+        }
         default: return state;
     }
 }

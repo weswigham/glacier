@@ -1,7 +1,7 @@
 export interface DataAdapter {
     updateCache(): Promise<any>;
     remove(): Promise<any>;
-    uuid: number;
+    id: number;
 }
 
 export * from "./memory";

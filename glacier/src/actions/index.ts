@@ -11,7 +11,7 @@ import {AddDataSourceAction} from "./add-data-source";
 import {RemoveDataSourceAction} from "./remove-data-source";
 import {UpdateDataCacheAction} from "./update-data-cache";
 import {AddFieldsAction} from "./add-fields";
-import {RemoveFieldsAction} from "./remove-fields";
+import {RemoveFieldsAction, RemoveFieldsByIdAction} from "./remove-fields";
 import {UpdateDescriptionAction, UpdateEncodingAction, UpdateMarkTypeAction, UpdateSizeAction} from "./configure-mark";
 
 export type AllActions = AddDataSourceAction<string, {}, {}>
@@ -22,4 +22,5 @@ export type AllActions = AddDataSourceAction<string, {}, {}>
     | UpdateMarkTypeAction
     | UpdateSizeAction
     | AddFieldsAction
-    | RemoveFieldsAction;
+    | RemoveFieldsAction
+    | RemoveFieldsByIdAction;

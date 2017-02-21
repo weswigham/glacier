@@ -8,10 +8,10 @@ import {createAddDataSourceAction, createUpdateDataCacheAction, createRemoveData
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
 export class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
-    uuid: number;
+    id: number;
     constructor(private store: redux.Store<ModelState>, filename: string) {
         const action = createAddDataSourceAction("sqlite-file", {path: filename}, {});
-        this.uuid = action.payload.uuid;
+        this.id = action.payload.id;
         const connection = knex({
             client: "sqlite3",
             connection: { filename },
@@ -49,7 +49,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
     updateCache() {
         let state = this.store.getState();
         let fields: {[index: string]: string[]} = state.fields.filter(item =>
-             item.dataSource === this.uuid
+             item.dataSource === this.id
         )
         .reduce((prev, curr, index) => {
             prev[curr.table] = prev[curr.table] || [];
@@ -59,7 +59,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
 
         return Promise.all(Object.keys(fields).map(key => {
             return this._conn.select(...fields[key]).from(key).then(data => {
-            const action = createUpdateDataCacheAction(this.uuid, data);
+            const action = createUpdateDataCacheAction(this.id, data);
             this.store.dispatch(action);
         }, err => {
             this.store.dispatch({type: "UPDATE_DATA_CACHE", error: err});
@@ -67,7 +67,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
         }));
     }
     remove() {
-        const action = createRemoveDataSourceAction(this.uuid);
+        const action = createRemoveDataSourceAction(this.id);
         this.store.dispatch(action);
         return Promise.resolve();
     }
