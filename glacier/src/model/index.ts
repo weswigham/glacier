@@ -8,11 +8,15 @@ export interface SourcesModelState {
     readonly [index: number]: AnyDataSource;
 }
 
+export interface DataSourceIdBrand {
+    " do not use data source ": void;
+}
+export type DataSourceId = number & DataSourceIdBrand;
 export interface DataSource<T extends string, M, C> {
     readonly type: T;
     readonly metadata: M;
     readonly cache: C;
-    readonly id: number;
+    readonly id: DataSourceId;
 }
 
 export interface MarkState {
@@ -47,7 +51,11 @@ export interface Field {
     readonly dataSource: number;
 }
 
-export type FieldDescriptor = Field & { id: number; }
+export interface FieldIdBrand {
+    " do not use field ": void;
+}
+export type FieldId = number & FieldIdBrand;
+export type FieldDescriptor = Field & { id: FieldId; }
 
 export type FieldState = FieldDescriptor[];
 

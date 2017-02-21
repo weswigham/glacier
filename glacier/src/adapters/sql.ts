@@ -1,6 +1,6 @@
 import knex = require("knex");
 import redux = require("redux");
-import {ModelState} from "../";
+import {ModelState, DataSourceId} from "../";
 import {DataAdapter} from "./";
 import {createAddDataSourceAction, createUpdateDataCacheAction, createRemoveDataSourceAction} from "../actions";
 
@@ -8,7 +8,7 @@ import {createAddDataSourceAction, createUpdateDataCacheAction, createRemoveData
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
 export class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
-    id: number;
+    id: DataSourceId;
     constructor(private store: redux.Store<ModelState>, filename: string) {
         const action = createAddDataSourceAction("sqlite-file", {path: filename}, {});
         this.id = action.payload.id;
