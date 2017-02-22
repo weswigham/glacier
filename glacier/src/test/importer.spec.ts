@@ -269,7 +269,7 @@ describe("glacier as a model", () => {
         await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the fifth baseline
         await adapter.remove();
     });
-    it("should create export state to disc", async() => {
+    it("should export bundle to disc", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
@@ -287,19 +287,24 @@ describe("glacier as a model", () => {
 
         // const exporter = glacier.createSvgExporter(model, adapter.id);
         const lib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
-        const exportedState = glacier.createStateExporter(model, adapter.id, lib);
+        const exportedBundle = glacier.createZipExporter(model, adapter.id, lib);
         await adapter.updateCache();
-        const zip = await exportedState.export();
+        const zip = await exportedBundle.export();
         zip.generateNodeStream({type: "nodebuffer", streamFiles: true})
-        .pipe(fs.createWriteStream("../data/out.zip"));
+            .pipe(fs.createWriteStream("../data/out.zip"));
 
-        jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip"))).then(function(zip: JSZip){
-            console.log(zip);
-            zip.files["thumnail.svg"].async("string").then(function (content) {
-                baseline("5-Product Weight", content).then(function (argument) {
-                    adapter.remove();
-                });
-            });
-        });
+        const zipBuffer = await jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip")));
+        const thumnailString = await zipBuffer.files["thumnail.svg"].async("string");
+        await baseline("5-Product Weight", thumnailString);
+        await adapter.remove();
+
+        // jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip"))).then(function(zip: JSZip){
+        //     console.log(zip);
+        //     zip.files["thumnail.svg"].async("string").then(function (content) {
+        //         baseline("5-Product Weight", content).then(function (argument) {
+        //             adapter.remove();
+        //         });
+        //     });
+        // });
     });
 });
