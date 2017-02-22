@@ -272,8 +272,8 @@ describe("glacier as a model", () => {
     it("should create export state to disc", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.uuid}, {name: "ListPrice", table: "Product", dataSource: adapter.uuid}, {name: "Weight", table: "Product", dataSource: adapter.uuid}];
-        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.uuid}];
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createRemoveFieldsAction(removeFields),
@@ -285,9 +285,9 @@ describe("glacier as a model", () => {
         })
         );
 
-        // const exporter = glacier.createSvgExporter(model, adapter.uuid);
+        // const exporter = glacier.createSvgExporter(model, adapter.id);
         const lib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
-        const exportedState = glacier.createStateExporter(model, adapter.uuid, lib);
+        const exportedState = glacier.createStateExporter(model, adapter.id, lib);
         await adapter.updateCache();
         const zip = await exportedState.export();
         zip.generateNodeStream({type: "nodebuffer", streamFiles: true})
