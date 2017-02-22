@@ -1,7 +1,8 @@
 import {ReduxStandardAction} from "./";
+import {DataSourceId} from "../model";
 
-export type RemoveDataSourceAction = ReduxStandardAction<"REMOVE_DATA_SOURCE", {uuid: number}>;
+export type RemoveDataSourceAction = ReduxStandardAction<"REMOVE_DATA_SOURCE", {id: DataSourceId}>;
 
-export function createRemoveDataSourceAction(uuid: number): RemoveDataSourceAction {
-    return {type: "REMOVE_DATA_SOURCE", payload: {uuid}};
+export function createRemoveDataSourceAction(id: DataSourceId): RemoveDataSourceAction {
+    return {type: "REMOVE_DATA_SOURCE", payload: {id}};
 }
