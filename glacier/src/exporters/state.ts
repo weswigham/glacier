@@ -1,11 +1,9 @@
 import redux = require("redux");
-import ws = require("webpack-stream");
-import webpack = require("webpack");;
 import JSZip = require("jszip");
 import {ModelState} from "../";
 import {Exporter, createSvgExporter} from "./";
 
-export function createStateExporter(store: redux.Store<ModelState>, uuid: number) {
+export function createStateExporter(store: redux.Store<ModelState>, uuid: number, libary: Buffer) {
     const updater: Exporter<any> = ((() => {
         // On update...
         // store.getState()
@@ -17,7 +15,7 @@ export function createStateExporter(store: redux.Store<ModelState>, uuid: number
             let zip = new JSZip();
             zip.file("state.json", stateString);
             zip.file("thumnail.svg", svgExporter.export());
-            
+            zip.file("glacier.js", libary);
             resolve(zip);
         });
     };

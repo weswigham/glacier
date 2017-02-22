@@ -5,6 +5,8 @@ import {DOMParser} from "xmldom";
 import {evaluate, XPathResult} from "xpath";
 import {Store} from "redux";
 import * as fs from "fs";
+import {resolve} from "path";
+const jszip = require("jszip");
 
 describe("A smoke test suite", () => {
     it("should pass", () => {
@@ -247,16 +249,21 @@ describe("glacier as a model", () => {
         })
         );
 
-        const exporter = glacier.createSvgExporter(model, adapter.uuid);
-        const exportedState = glacier.createStateExporter(model, adapter.uuid);
-
+        // const exporter = glacier.createSvgExporter(model, adapter.uuid);
+        const lib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
+        const exportedState = glacier.createStateExporter(model, adapter.uuid, lib);
         await adapter.updateCache();
         const zip = await exportedState.export();
         zip.generateNodeStream({type: "nodebuffer", streamFiles: true})
-        .pipe(fs.createWriteStream("out.zip"));
+        .pipe(fs.createWriteStream("../data/out.zip"));
 
-
-        await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
-        await adapter.remove();
+        jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip"))).then(function(zip: JSZip){
+            console.log(zip);
+            zip.files["thumnail.svg"].async("string").then(function (content) {
+                baseline("5-Product Weight", content).then(function (argument) {
+                    adapter.remove();
+                });
+            });
+        });
     });
 });
