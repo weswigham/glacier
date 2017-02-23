@@ -294,4 +294,33 @@ describe("glacier as a model", () => {
         await baseline("5-Product Weight", thumnailString);
         await adapter.remove();
     });
+    it("should export other files to bundle", async() => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        dispatchSequence(model,
+            glacier.createAddFieldsAction(addFields),
+            glacier.createRemoveFieldsAction(removeFields),
+            glacier.createUpdateMarkTypeAction("bar"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createUpdateEncodingAction({
+                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
+                y: {field: "Weight", type: "quantitative"},
+        })
+        );
+
+        const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
+        const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
+        const exportedBundle = glacier.createZipExporter(model, adapter.id, {"glacier.js": glacierLib, "index.html": indexHtml});
+        await adapter.updateCache();
+        const zip = await exportedBundle.export();
+        const loadedZip = await new jszip().loadAsync(zip);
+        const files = Object.keys(loadedZip.files);
+        expect(files).to.contain("index.html");
+        expect(files).to.contain("glacier.js");
+        expect(files).to.contain("thumnail.svg");
+        expect(files).to.contain("state.json");
+        await adapter.remove();
+    });
 });
