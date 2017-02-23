@@ -6,8 +6,7 @@ import {evaluate, XPathResult} from "xpath";
 import {Store} from "redux";
 import * as fs from "fs";
 import {resolve} from "path";
-const jszip = require("jszip");
-
+import * as jszip from "jszip";
 describe("A smoke test suite", () => {
     it("should pass", () => {
         expect(true).to.equal(true);
@@ -285,26 +284,14 @@ describe("glacier as a model", () => {
         })
         );
 
-        // const exporter = glacier.createSvgExporter(model, adapter.id);
         const lib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
         const exportedBundle = glacier.createZipExporter(model, adapter.id, lib);
         await adapter.updateCache();
         const zip = await exportedBundle.export();
-        zip.generateNodeStream({type: "nodebuffer", streamFiles: true})
-            .pipe(fs.createWriteStream("../data/out.zip"));
-
-        const zipBuffer = await jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip")));
-        const thumnailString = await zipBuffer.files["thumnail.svg"].async("string");
+        const resultFile = await zip.generateAsync({ type: "nodebuffer" });
+        const loadedZip = await new jszip().loadAsync(resultFile);
+        const thumnailString = await loadedZip.files["thumnail.svg"].async("string");
         await baseline("5-Product Weight", thumnailString);
         await adapter.remove();
-
-        // jszip.loadAsync(fs.readFileSync(resolve(__dirname, "../../../data/out.zip"))).then(function(zip: JSZip){
-        //     console.log(zip);
-        //     zip.files["thumnail.svg"].async("string").then(function (content) {
-        //         baseline("5-Product Weight", content).then(function (argument) {
-        //             adapter.remove();
-        //         });
-        //     });
-        // });
     });
 });
