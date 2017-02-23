@@ -268,7 +268,7 @@ describe("glacier as a model", () => {
         await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the fifth baseline
         await adapter.remove();
     });
-    it("should export bundle to disc", async() => {
+    it("should export svg to bundle", async() => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
@@ -284,12 +284,12 @@ describe("glacier as a model", () => {
         })
         );
 
-        const lib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
-        const exportedBundle = glacier.createZipExporter(model, adapter.id, lib);
+        const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
+        const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
+        const exportedBundle = glacier.createZipExporter(model, adapter.id, {"glacier.js": glacierLib, "index.html": indexHtml});
         await adapter.updateCache();
         const zip = await exportedBundle.export();
-        const resultFile = await zip.generateAsync({ type: "nodebuffer" });
-        const loadedZip = await new jszip().loadAsync(resultFile);
+        const loadedZip = await new jszip().loadAsync(zip);
         const thumnailString = await loadedZip.files["thumnail.svg"].async("string");
         await baseline("5-Product Weight", thumnailString);
         await adapter.remove();
