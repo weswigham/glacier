@@ -4,3 +4,4 @@ export interface Exporter<T> {
 }
 
 export * from "./svg";
+export * from "./zip";
