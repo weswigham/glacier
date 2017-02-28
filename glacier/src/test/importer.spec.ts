@@ -276,7 +276,7 @@ describe("glacier as a model", () => {
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createRemoveFieldsAction(removeFields),
-            glacier.createUpdateMarkTypeAction("bar"),
+            glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createUpdateEncodingAction({
                 x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
@@ -291,7 +291,7 @@ describe("glacier as a model", () => {
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
         const thumnailString = await loadedZip.files["thumnail.svg"].async("string");
-        await baseline("5-Product Weight", thumnailString);
+        await baseline("6-Exported-Thumnail", thumnailString);
         await adapter.remove();
     });
     it("should export other files to bundle", async() => {
