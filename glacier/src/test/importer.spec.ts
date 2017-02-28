@@ -1,12 +1,24 @@
 /// <reference types="mocha" />
 import {expect} from "chai";
 import * as glacier from "../index";
+import {satisfies} from "../util"
 import {DOMParser} from "xmldom";
 import {evaluate, XPathResult} from "xpath";
 import {Store} from "redux";
 import * as fs from "fs";
 import {resolve} from "path";
 import * as jszip from "jszip";
+
+function root(parts: TemplateStringsArray, ...inserts: string[]) {
+    let result = "";
+    for (let i = 0; i < inserts.length; i++) {
+        result += parts[i];
+        result += inserts[i];
+    }
+    result += parts[parts.length - 1];
+    return resolve(__dirname, "../../../", result);
+}
+
 describe("A smoke test suite", () => {
     it("should pass", () => {
         expect(true).to.equal(true);
@@ -21,9 +33,9 @@ describe("A smoke test suite", () => {
 function baseline(name: string, actualString: string): Promise<{expected: Document, actual: Document}> {
     expect(actualString).to.be.a("string");
     return new Promise((resolve, reject) => {
-        fs.writeFile(`../data/baselines/local/${name}.svg`, actualString, err => {
+        fs.writeFile(root`./data/baselines/local/${name}.svg`, actualString, err => {
             if (err) reject(err);
-            fs.readFile(`../data/baselines/reference/${name}.svg`, (err, xml) => {
+            fs.readFile(root`./data/baselines/reference/${name}.svg`, (err, xml) => {
                 if (err) return reject(err);
 
                 try {
@@ -76,7 +88,7 @@ describe("glacier as a model", () => {
 
     it("should be usable as a tool to consume structured data and emit visualizations", async () => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
@@ -97,7 +109,7 @@ describe("glacier as a model", () => {
 
     it("should be usable to change mark type", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
@@ -118,7 +130,7 @@ describe("glacier as a model", () => {
 
     it("should be usable to change size", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
@@ -139,7 +151,7 @@ describe("glacier as a model", () => {
 
     it("should be usable to change encoding", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
@@ -160,7 +172,7 @@ describe("glacier as a model", () => {
 
     it("should be able to change description", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
@@ -181,27 +193,21 @@ describe("glacier as a model", () => {
 
     it("should create an action to add fields", () => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const fields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
             glacier.createAddFieldsAction(fields)
         );
         let state = model.getState();
 
-        let expectName = fields[0].name;
-        let actualName = state.fields[0].name;
-        expect(actualName).to.equal(expectName);
-
-        let expectTable = fields[0].table;
-        let actualTable = state.fields[0].table;
-        expect(actualTable).to.equal(expectTable);
-
-        expect(state.fields.length).to.equal(fields.length);
+        for (const f of fields) {
+            expect(satisfies(Object.keys(state.fields).map(k => state.fields[+k]), f2 => f.name === f2.name && f.table === f2.table && f.dataSource === f2.dataSource)).to.exist;
+        }
     });
 
     it("should create an action to remove fields", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
         const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
@@ -215,16 +221,12 @@ describe("glacier as a model", () => {
         })
         );
         let state = model.getState();
-        expect(state.fields.length).to.equal(2);
+        expect(Object.keys(state.fields).length).to.equal(2);
 
-        let expectName = addFields[0].name;
-        let actualName = state.fields[0].name;
-        expect(actualName).to.equal(expectName);
-
-        let expectTable = addFields[0].table;
-        let actualTable = state.fields[0].table;
-
-        expect(actualTable).to.equal(expectTable);
+        const expectedFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        for (const f of expectedFields) {
+            expect(satisfies(Object.keys(state.fields).map(k => state.fields[+k]), f2 => f.name === f2.name && f.table === f2.table && f.dataSource === f2.dataSource)).to.exist;
+        };
 
         const exporter = glacier.createSvgExporter(model);
 
@@ -235,7 +237,7 @@ describe("glacier as a model", () => {
 
     it("should create an action to remove fields by id", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = glacier.createAddFieldsAction(
             [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}]
         );
@@ -251,16 +253,12 @@ describe("glacier as a model", () => {
         })
         );
         let state = model.getState();
-        expect(state.fields.length).to.equal(2);
+        expect(Object.keys(state.fields).length).to.equal(2);
 
-        let expectName = addFields.payload.fields[0].name;
-        let actualName = state.fields[0].name;
-        expect(actualName).to.equal(expectName);
-
-        let expectTable = addFields.payload.fields[0].table;
-        let actualTable = state.fields[0].table;
-
-        expect(actualTable).to.equal(expectTable);
+        const expectedFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        for (const f of expectedFields) {
+            expect(satisfies(Object.keys(state.fields).map(k => state.fields[+k]), f2 => f.name === f2.name && f.table === f2.table && f.dataSource === f2.dataSource)).to.exist;
+        };
 
         const exporter = glacier.createSvgExporter(model);
 
@@ -270,7 +268,7 @@ describe("glacier as a model", () => {
     });
     it("should export svg to bundle", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
         const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
@@ -284,8 +282,8 @@ describe("glacier as a model", () => {
         })
         );
 
-        const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
-        const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
+        const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
+        const indexHtml = fs.readFileSync(root`./data/index.html`);
         const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
         await adapter.updateCache();
         const zip = await exportedBundle.export();
@@ -296,7 +294,7 @@ describe("glacier as a model", () => {
     });
     it("should export other files to bundle", async() => {
         let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, "../data/CycleChain.sqlite");
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
         const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
         dispatchSequence(model,
@@ -310,8 +308,8 @@ describe("glacier as a model", () => {
         })
         );
 
-        const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
-        const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
+        const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
+        const indexHtml = fs.readFileSync(root`./data/index.html`);
         const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
         await adapter.updateCache();
         const zip = await exportedBundle.export();

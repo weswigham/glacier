@@ -10,7 +10,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
     private _conn: typeof dummy;
     id: DataSourceId;
     constructor(private store: redux.Store<ModelState>, filename: string) {
-        const action = createAddDataSourceAction("sqlite-file", { path: filename }, {});
+        const action = createAddDataSourceAction("sqlite-file", { path: filename }, {}, this);
         this.id = action.payload.id;
         const connection = knex({
             client: "sqlite3",
@@ -54,7 +54,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
     updateCache() {
         this.assertConnection();
         let state = this.store.getState();
-        let fields: { [index: string]: string[] } = state.fields.filter(item =>
+        let fields: { [index: string]: string[] } = Object.keys(state.fields).map(k => state.fields[+k]).filter(item =>
             item.dataSource === this.id
         )
         .reduce((prev, curr, index) => {

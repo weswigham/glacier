@@ -48,6 +48,7 @@
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {
+    "alasql": "^0.3.7",
     "knex": "^0.12.6",
     "redux": "^3.6.0",
     "sqlite3": "^3.1.6",

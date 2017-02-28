@@ -10,7 +10,7 @@
         "noFallthroughCasesInSwitch": true,
         "preserveConstEnums": true,
         "removeComments": false,
-        "lib": ["es6"],
+        "lib": ["es6", "es2015.promise", "dom"],
         "types": [],
         "declaration": true
     },
