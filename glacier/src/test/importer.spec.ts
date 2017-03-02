@@ -344,10 +344,11 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddJoinAction(addFields.payload.fields[1].id, addFields.payload.fields[2].id),
             glacier.createUpdateEncodingAction({
                 // TODO: BREAK DOWN ENCODING ACTION TO MAKE FIELD SELECTION FOR AXES WHEN JOINS MANGLE NAMES INTUITIVE
                 x: {field: `_field${addFields.payload.fields[0].id}`, type: "quantitative"},
-                y: {field: `_field${addFields.payload.fields[2].id}`, type: "quantitative"}
+                y: {field: `_field${addFields.payload.fields[3].id}`, type: "quantitative"}
             })
         );
         const exporter = glacier.createSvgExporter(model);
