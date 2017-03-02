@@ -1,7 +1,7 @@
 /// <reference types="mocha" />
 import {expect} from "chai";
 import * as glacier from "../index";
-import {satisfies} from "../util"
+import {satisfies} from "../util";
 import {DOMParser} from "xmldom";
 import {evaluate, XPathResult} from "xpath";
 import {Store} from "redux";
