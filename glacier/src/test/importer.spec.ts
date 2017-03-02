@@ -321,4 +321,41 @@ describe("glacier as a model", () => {
         expect(files).to.contain("state.json");
         await adapter.remove();
     });
+
+    it("should enable consumers to join data from multiple sources", async () => {
+        let model = glacier.createModel();
+        const carSource = glacier.createMemoryDataSource(model);
+        carSource(require(root`./data/cars.json`));
+        const popSource = glacier.createMemoryDataSource(model);
+        const popdata = require(root`./data/population.json`) as {year: number, sex: number, population: number, age: number}[];
+        let popaggregate: {[index: number]: {year: number, population: number}} = {};
+        popaggregate = popdata.reduce((prev, p) => {
+            popaggregate[p.year] = popaggregate[p.year] || {year: p.year, population: 0};
+            popaggregate[p.year].population += p.population;
+            return prev;
+        }, popaggregate);
+        popSource(Object.keys(popaggregate).map(k => popaggregate[+k]));
+        const addFields = glacier.createAddFieldsAction([
+            {name: "Miles_per_Gallon", dataSource: carSource.id}, {name: "Year", dataSource: carSource.id},
+            {name: "year", dataSource: popSource.id}, {name: "population", dataSource: popSource.id}
+        ]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createUpdateEncodingAction({
+                // TODO: BREAK DOWN ENCODING ACTION TO MAKE FIELD SELECTION FOR AXES WHEN JOINS MANGLE NAMES INTUITIVE
+                x: {field: `_field${addFields.payload.fields[0].id}`, type: "quantitative"},
+                y: {field: `_field${addFields.payload.fields[2].id}`, type: "quantitative"}
+            })
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await carSource.updateCache();
+        await popSource.updateCache();
+        await baseline("7 - MPG vs Population", await exporter.export());
+        await carSource.remove();
+        await popSource.remove();
+    });
 });

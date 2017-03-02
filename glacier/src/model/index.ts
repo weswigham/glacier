@@ -51,7 +51,8 @@ export interface Encoding {
 
 export interface Field {
     readonly name: string;
-    readonly table: string;
+    // TODO: Remove `table` and make data sources be inherently only one table at a time.
+    readonly table?: string;
     readonly dataSource: DataSourceId;
 }
 

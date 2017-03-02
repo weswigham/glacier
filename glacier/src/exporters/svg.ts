@@ -24,7 +24,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             };
         }
         else {
-            // TODO: Issue error when there aren;t enough joins to join all selected fields!
+            // TODO: Issue error when there aren't enough joins to join all selected fields!
             // join across all utilized data sources using the field information provided
             // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM FROM ? _data1
             //   JOIN ? _data2 ON _data1.field1=_data2.field2

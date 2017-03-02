@@ -58,6 +58,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
             item.dataSource === this.id
         )
         .reduce((prev, curr, index) => {
+            if (!curr.table) return prev;
             prev[curr.table] = prev[curr.table] || [];
             prev[curr.table].push(curr.name);
             return prev;
