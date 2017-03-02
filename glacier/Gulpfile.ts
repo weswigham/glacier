@@ -39,6 +39,7 @@ gulp.task("lint", "Runs tslint over the typescript within the project", (done) =
 });
 
 function createBuildStream(release?: boolean) {
+  const ignore = new webpack.IgnorePlugin(/(^fs$|cptable|jszip|xlsx|xls|^es6-promise$|^net$|^tls$|^forever-agent$|^tough-cookie$|cpexcel|^path$)/);
   return gulp.src("src/index.ts")
     .pipe(ws({
       output: {
@@ -55,7 +56,7 @@ function createBuildStream(release?: boolean) {
             { test: /\.tsx?$/, loader: "ts-loader", exclude: /node_modules/ }
             ]
         },
-        plugins: release ? [new webpack.optimize.UglifyJsPlugin()] : []
+        plugins: release ? [new webpack.optimize.UglifyJsPlugin(), ignore] : [ignore]
     }))
     .pipe(gulp.dest(release ? "dist/" : "dist/local/"));
 }
