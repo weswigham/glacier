@@ -34,9 +34,9 @@ function baseline(name: string, actualString: string): Promise<{expected: Docume
     expect(actualString).to.be.a("string");
     return new Promise((resolve, reject) => {
         fs.writeFile(root`./data/baselines/local/${name}.svg`, actualString, err => {
-            if (err) reject(err);
+            if (err) return reject(err);
             fs.readFile(root`./data/baselines/reference/${name}.svg`, (err, xml) => {
-                if (err) return reject(err);
+                if (err) return reject(new Error(`Reference baseline for ${name} does not yet exist!`));
 
                 try {
                     const parser = new DOMParser();
@@ -326,37 +326,41 @@ describe("glacier as a model", () => {
         let model = glacier.createModel();
         const carSource = glacier.createMemoryDataSource(model);
         carSource(require(root`./data/cars.json`));
-        const popSource = glacier.createMemoryDataSource(model);
-        const popdata = require(root`./data/population.json`) as {year: number, sex: number, population: number, age: number}[];
-        let popaggregate: {[index: number]: {year: number, population: number}} = {};
-        popaggregate = popdata.reduce((prev, p) => {
-            popaggregate[p.year] = popaggregate[p.year] || {year: p.year, population: 0};
-            popaggregate[p.year].population += p.population;
-            return prev;
-        }, popaggregate);
-        popSource(Object.keys(popaggregate).map(k => popaggregate[+k]));
+        const djiSource = glacier.createMemoryDataSource(model);
+        const djiCsv = fs.readFileSync(root`./data/dji.csv`).toString();
+        const [headerString, ...rows] = djiCsv.split("\n");
+        const header = headerString.split(",");
+        const djiData = rows.map(r => r.split(",")).map(r => {
+            const datum = {} as {[index: string]: string};
+            header.forEach((h, i) => {
+                datum[h] = r[i];
+            });
+            return datum;
+        }) as {Date: string, Open: string, Close: string, High: string, Low: string, Volume: string}[];
+        djiSource(djiData.map(d => ({year: +d.Date.substring(0, 4), close: +d.Close, open: +d.Open, low: +d.Low, high: +d.High, volume: +d.Volume})));
         const addFields = glacier.createAddFieldsAction([
-            {name: "Miles_per_Gallon", dataSource: carSource.id}, {name: "Year", dataSource: carSource.id},
-            {name: "year", dataSource: popSource.id}, {name: "population", dataSource: popSource.id}
+            {name: "Name", dataSource: carSource.id}, {name: "Miles_per_Gallon", dataSource: carSource.id}, {name: "Year", dataSource: carSource.id},
+            {name: "year", dataSource: djiSource.id}, {name: "high", dataSource: djiSource.id}
         ]);
         dispatchSequence(model,
             addFields,
             glacier.createUpdateMarkTypeAction("point"),
-            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateDescriptionAction("MPG v DJI"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddJoinAction(addFields.payload.fields[1].id, addFields.payload.fields[2].id),
+            glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
             glacier.createUpdateEncodingAction({
                 // TODO: BREAK DOWN ENCODING ACTION TO MAKE FIELD SELECTION FOR AXES WHEN JOINS MANGLE NAMES INTUITIVE
-                x: {field: `_field${addFields.payload.fields[0].id}`, type: "quantitative"},
-                y: {field: `_field${addFields.payload.fields[3].id}`, type: "quantitative"}
+                // SINCE ROW NOW THIS IS PRETTY AWFUL
+                x: {field: `${addFields.payload.fields[1].name}_${addFields.payload.fields[1].id}`, type: "quantitative", axis: { title: "MPG" } },
+                y: {field: `${addFields.payload.fields[4].name}_${addFields.payload.fields[4].id}`, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } }
             })
         );
         const exporter = glacier.createSvgExporter(model);
 
         await carSource.updateCache();
-        await popSource.updateCache();
-        await baseline("7 - MPG vs Population", await exporter.export());
+        await djiSource.updateCache();
+        await baseline("7-MPGvDJI", await exporter.export());
         await carSource.remove();
-        await popSource.remove();
+        await djiSource.remove();
     });
 });

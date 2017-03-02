@@ -18,7 +18,8 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         const fields = Object.keys(fieldTable).map(f => fieldTable[+f]);
         const spec: MarkState & {data?: any} = Object.create(marks);
         // Simple case: all selected fields from same data source
-        if (Object.keys(fields.reduce((state, f) => (state[f.dataSource] = true, state), {} as { [index: number]: boolean })).length === 1) {
+        const dataSources = Object.keys(fields.reduce((state, f) => (state[f.dataSource] = true, state), {} as { [index: number]: boolean }));
+        if (dataSources.length === 1) {
             spec.data = {
                 values: fields.map(f => sources[f.dataSource].cache)[0]
             };
@@ -30,10 +31,13 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             //   JOIN ? _data2 ON _data1.field1=_data2.field2
             //   ...
             //   JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM
-            const data = await alasql.promise(`
-            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS _field${f.id}`).join(", ")}
+            const query = `
+            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
             FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
-            `, fields.map(f => sources[f.dataSource].cache));
+            `;
+            const tables = dataSources.map(d => sources[+d].cache);
+            tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
+            const data = alasql(query, tables);
             spec.data = {values: data};
         }
         return await new Promise<string>((resolve, reject) => {
