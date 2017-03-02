@@ -1,7 +1,10 @@
+import {DataAdapter} from "../adapters";
+
 export interface ModelState {
     readonly sources: SourcesModelState;
     readonly marks: MarkState;
     readonly fields: FieldState;
+    readonly transforms: TransformsState;
 }
 
 export interface SourcesModelState {
@@ -17,6 +20,7 @@ export interface DataSource<T extends string, M, C> {
     readonly metadata: M;
     readonly cache: C;
     readonly id: DataSourceId;
+    readonly adapter: DataAdapter;
 }
 
 export interface MarkState {
@@ -47,8 +51,9 @@ export interface Encoding {
 
 export interface Field {
     readonly name: string;
-    readonly table: string;
-    readonly dataSource: number;
+    // TODO: Remove `table` and make data sources be inherently only one table at a time.
+    readonly table?: string;
+    readonly dataSource: DataSourceId;
 }
 
 export interface FieldIdBrand {
@@ -57,7 +62,18 @@ export interface FieldIdBrand {
 export type FieldId = number & FieldIdBrand;
 export type FieldDescriptor = Field & { id: FieldId; }
 
-export type FieldState = FieldDescriptor[];
+export interface FieldState {
+    [id: number]: FieldDescriptor;
+}
+
+export interface JoinDescriptor {
+    readonly left: FieldId;
+    readonly right: FieldId;
+}
+
+export interface TransformsState {
+    readonly joins: JoinDescriptor[];
+}
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

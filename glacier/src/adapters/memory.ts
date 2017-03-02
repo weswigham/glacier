@@ -8,12 +8,12 @@ export interface MemoryDataSourceAdapter extends DataAdapter {
 }
 
 export function createMemoryDataSource(store: redux.Store<ModelState>): MemoryDataSourceAdapter {
-    const createAction = createAddDataSourceAction("memory", {}, {});
-    const id = createAction.payload.id;
     let storedData: any = {};
     const func = (((data: any) => {
         storedData = data;
     }) as MemoryDataSourceAdapter);
+    const createAction = createAddDataSourceAction("memory", {}, {}, func);
+    const id = createAction.payload.id;
     func.updateCache = () => {
         const action = createUpdateDataCacheAction(id, storedData);
         store.dispatch(action);

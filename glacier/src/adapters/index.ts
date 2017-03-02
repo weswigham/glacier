@@ -1,7 +1,9 @@
+import {DataSourceId} from "../model";
+
 export interface DataAdapter {
     updateCache(): Promise<any>;
     remove(): Promise<any>;
-    id: number;
+    id: DataSourceId;
 }
 
 export * from "./memory";
