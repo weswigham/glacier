@@ -7,17 +7,17 @@ import redux = require("redux");
 import {ModelState, MarkState} from "../";
 import {Exporter} from "./";
 
-export function createSvgExporter(store: redux.Store<ModelState>, uuid: number) {
-    const updater: Exporter<string> = ((() => {
+export function createSvgExporter(store: redux.Store<ModelState>) {
+    const updater = ((() => {
         // On update...
         // store.getState()
     }) as Exporter<string>);
     updater.export = () => {
-        const {sources, marks} = store.getState();
-        // TODO: Store encodings in store; join multiple data sources in values
+        const {sources, marks, fields} = store.getState();
         const spec: MarkState & {data?: any} = Object.create(marks);
         spec.data = {
-            values: sources[uuid].cache
+            // For now (pre-synthetic data sources), assume all data can be found in the cache for the first 
+            values: fields.map(f => sources[f.dataSource].cache)[0]
         };
         return new Promise<string>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);

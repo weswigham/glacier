@@ -88,7 +88,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export());
@@ -109,7 +109,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("2-marks", await exporter.export());
@@ -130,7 +130,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("3-size", await exporter.export());
@@ -151,7 +151,7 @@ describe("glacier as a model", () => {
                 x: {field: "ListPrice", type: "quantitative"}
             })
         );
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("4-encoding", await exporter.export());
@@ -172,7 +172,7 @@ describe("glacier as a model", () => {
                 y: {field: "ListPrice", type: "quantitative"}
         })
         );
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("1-structuredData", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
@@ -226,7 +226,7 @@ describe("glacier as a model", () => {
 
         expect(actualTable).to.equal(expectTable);
 
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("5-Product Weight", await exporter.export());
@@ -262,7 +262,7 @@ describe("glacier as a model", () => {
 
         expect(actualTable).to.equal(expectTable);
 
-        const exporter = glacier.createSvgExporter(model, adapter.id);
+        const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
         await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the fifth baseline
@@ -286,7 +286,7 @@ describe("glacier as a model", () => {
 
         const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
         const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
-        const exportedBundle = glacier.createZipExporter(model, adapter.id, {"glacier.js": glacierLib, "index.html": indexHtml});
+        const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
         await adapter.updateCache();
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
@@ -312,7 +312,7 @@ describe("glacier as a model", () => {
 
         const glacierLib = fs.readFileSync(resolve(__dirname, "../../dist/local/glacier.js"));
         const indexHtml = fs.readFileSync(resolve(__dirname, "../../../data/index.html"));
-        const exportedBundle = glacier.createZipExporter(model, adapter.id, {"glacier.js": glacierLib, "index.html": indexHtml});
+        const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
         await adapter.updateCache();
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
