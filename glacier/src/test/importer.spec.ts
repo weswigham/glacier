@@ -363,4 +363,13 @@ describe("glacier as a model", () => {
         await carSource.remove();
         await djiSource.remove();
     });
+
+    it("should be able to add default fields", async() => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        dispatchSequence(model);
+        await adapter.defaultFieldSelection();
+        let state = model.getState();
+        expect(Object.keys(state.fields).length).to.equal(2);
+    });
 });
