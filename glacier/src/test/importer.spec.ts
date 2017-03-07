@@ -95,10 +95,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "quantitative"},
-                y: {field: "ListPrice", type: "quantitative"}
-            })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
+            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -116,10 +114,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("line"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "quantitative"},
-                y: {field: "ListPrice", type: "quantitative"}
-            })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
+            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -137,10 +133,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(100, 900),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "quantitative"},
-                y: {field: "ListPrice", type: "quantitative"}
-            })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
+            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -158,10 +152,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                y: {field: "DaysToManufacture", type: "quantitative"},
-                x: {field: "ListPrice", type: "quantitative"}
-            })
+            glacier.createAddChannelAction("y", {field: "DaysToManufacture", type: "quantitative"}),
+            glacier.createAddChannelAction("x", {field: "ListPrice", type: "quantitative"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -179,10 +171,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot break"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "quantitative"},
-                y: {field: "ListPrice", type: "quantitative"}
-        })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
+            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -215,10 +205,8 @@ describe("glacier as a model", () => {
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
-                y: {field: "Weight", type: "quantitative"},
-        })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
+            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
         );
         let state = model.getState();
         expect(Object.keys(state.fields).length).to.equal(2);
@@ -247,10 +235,8 @@ describe("glacier as a model", () => {
             removeFields,
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
-                y: {field: "Weight", type: "quantitative"},
-        })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
+            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
         );
         let state = model.getState();
         expect(Object.keys(state.fields).length).to.equal(2);
@@ -276,10 +262,8 @@ describe("glacier as a model", () => {
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
-                y: {field: "Weight", type: "quantitative"},
-        })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
+            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
         );
 
         const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
@@ -302,10 +286,8 @@ describe("glacier as a model", () => {
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createUpdateEncodingAction({
-                x: {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}},
-                y: {field: "Weight", type: "quantitative"},
-        })
+            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
+            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
         );
 
         const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
@@ -348,12 +330,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateDescriptionAction("MPG v DJI"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
-            glacier.createUpdateEncodingAction({
-                // TODO: BREAK DOWN ENCODING ACTION TO MAKE FIELD SELECTION FOR AXES WHEN JOINS MANGLE NAMES INTUITIVE
-                // SINCE ROW NOW THIS IS PRETTY AWFUL
-                x: {field: `${addFields.payload.fields[1].name}_${addFields.payload.fields[1].id}`, type: "quantitative", axis: { title: "MPG" } },
-                y: {field: `${addFields.payload.fields[4].name}_${addFields.payload.fields[4].id}`, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } }
-            })
+            glacier.createAddChannelAction("x", {field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" }}),
+            glacier.createAddChannelAction("y", {field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" }})
         );
         const exporter = glacier.createSvgExporter(model);
 

@@ -14,9 +14,6 @@ export function marks(state: MarkState | undefined, action: AllActions): MarkSta
                 case "desc": {
                     return {...state, description: action.payload.settingValue};
                 }
-                case "encoding": {
-                    return {...state, encoding: action.payload.settingValue};
-                }
                 case "size": {
                     return {...state, width: action.payload.settingValue.width, height: action.payload.settingValue.height};
                 }
