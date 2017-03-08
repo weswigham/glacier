@@ -1,12 +1,12 @@
 /// <reference types="mocha" />
-import {expect} from "chai";
+import { expect } from "chai";
 import * as glacier from "../index";
-import {satisfies} from "../util";
-import {DOMParser} from "xmldom";
-import {evaluate, XPathResult} from "xpath";
-import {Store} from "redux";
+import { satisfies } from "../util";
+import { DOMParser } from "xmldom";
+import { evaluate, XPathResult } from "xpath";
+import { Store } from "redux";
 import * as fs from "fs";
-import {resolve} from "path";
+import { resolve } from "path";
 import * as jszip from "jszip";
 
 function root(parts: TemplateStringsArray, ...inserts: string[]) {
@@ -30,7 +30,7 @@ describe("A smoke test suite", () => {
 
 /* tslint:disable:no-null-keyword */
 // XML parser and DOM document APIs require the usage of null :(
-function baseline(name: string, actualString: string): Promise<{expected: Document, actual: Document}> {
+function baseline(name: string, actualString: string): Promise<{ expected: Document, actual: Document }> {
     expect(actualString).to.be.a("string");
     return new Promise((resolve, reject) => {
         fs.writeFile(root`./data/baselines/local/${name}.svg`, actualString, err => {
@@ -65,7 +65,7 @@ function baseline(name: string, actualString: string): Promise<{expected: Docume
                     expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
                     expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
 
-                    return resolve({expected, actual});
+                    return resolve({ expected, actual });
                 }
                 catch (e) {
                     reject(e);
@@ -89,14 +89,14 @@ describe("glacier as a model", () => {
     it("should be usable as a tool to consume structured data and emit visualizations", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
-            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -105,17 +105,17 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
-    it("should be usable to change mark type", async() => {
+    it("should be usable to change mark type", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("line"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
-            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -124,17 +124,17 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
-    it("should be usable to change size", async() => {
+    it("should be usable to change size", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(100, 900),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
-            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -143,17 +143,17 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
-    it("should be usable to change encoding", async() => {
+    it("should be usable to change encoding", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("y", {field: "DaysToManufacture", type: "quantitative"}),
-            glacier.createAddChannelAction("x", {field: "ListPrice", type: "quantitative"})
+            glacier.createAddChannelAction("y", { field: "DaysToManufacture", type: "quantitative" }),
+            glacier.createAddChannelAction("x", { field: "ListPrice", type: "quantitative" })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -162,17 +162,17 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
-    it("should be able to change description", async() => {
+    it("should be able to change description", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot break"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "quantitative"}),
-            glacier.createAddChannelAction("y", {field: "ListPrice", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -184,7 +184,7 @@ describe("glacier as a model", () => {
     it("should create an action to add fields", () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const fields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const fields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(fields)
         );
@@ -195,23 +195,23 @@ describe("glacier as a model", () => {
         }
     });
 
-    it("should create an action to remove fields", async() => {
+    it("should create an action to remove fields", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
-        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }];
+        const removeFields = [{ name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
-            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "ordinal", scale: { bandSize: 20 } }),
+            glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
         let state = model.getState();
         expect(Object.keys(state.fields).length).to.equal(2);
 
-        const expectedFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        const expectedFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }];
         for (const f of expectedFields) {
             expect(satisfies(Object.keys(state.fields).map(k => state.fields[+k]), f2 => f.name === f2.name && f.table === f2.table && f.dataSource === f2.dataSource)).to.exist;
         };
@@ -223,11 +223,11 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
-    it("should create an action to remove fields by id", async() => {
+    it("should create an action to remove fields by id", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
         const addFields = glacier.createAddFieldsAction(
-            [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}]
+            [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }]
         );
         const removeFields = glacier.createRemoveFieldsAction([addFields.payload.fields[1]]);
         dispatchSequence(model,
@@ -235,13 +235,13 @@ describe("glacier as a model", () => {
             removeFields,
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
-            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "ordinal", scale: { bandSize: 20 } }),
+            glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
         let state = model.getState();
         expect(Object.keys(state.fields).length).to.equal(2);
 
-        const expectedFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
+        const expectedFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }];
         for (const f of expectedFields) {
             expect(satisfies(Object.keys(state.fields).map(k => state.fields[+k]), f2 => f.name === f2.name && f.table === f2.table && f.dataSource === f2.dataSource)).to.exist;
         };
@@ -252,23 +252,23 @@ describe("glacier as a model", () => {
         await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the fifth baseline
         await adapter.remove();
     });
-    it("should export svg to bundle", async() => {
+    it("should export svg to bundle", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
-        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }];
+        const removeFields = [{ name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
-            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "ordinal", scale: { bandSize: 20 } }),
+            glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
 
         const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
         const indexHtml = fs.readFileSync(root`./data/index.html`);
-        const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
+        const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml });
         await adapter.updateCache();
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
@@ -276,23 +276,23 @@ describe("glacier as a model", () => {
         await baseline("6-Exported-Thumnail", thumnailString);
         await adapter.remove();
     });
-    it("should export other files to bundle", async() => {
+    it("should export other files to bundle", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{name: "DaysToManufacture", table: "Product", dataSource: adapter.id}, {name: "ListPrice", table: "Product", dataSource: adapter.id}, {name: "Weight", table: "Product", dataSource: adapter.id}];
-        const removeFields = [{name: "ListPrice", table: "Product", dataSource: adapter.id}];
+        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Weight", table: "Product", dataSource: adapter.id }];
+        const removeFields = [{ name: "ListPrice", table: "Product", dataSource: adapter.id }];
         dispatchSequence(model,
             glacier.createAddFieldsAction(addFields),
             glacier.createRemoveFieldsAction(removeFields),
             glacier.createUpdateMarkTypeAction("bar"),
             glacier.createUpdateSizeAction(255, 264),
-            glacier.createAddChannelAction("x", {field: "DaysToManufacture", type: "ordinal", scale: {bandSize: 20}}),
-            glacier.createAddChannelAction("y", {field: "Weight", type: "quantitative"})
+            glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "ordinal", scale: { bandSize: 20 } }),
+            glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
 
         const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
         const indexHtml = fs.readFileSync(root`./data/index.html`);
-        const exportedBundle = glacier.createZipExporter(model, {"glacier.js": glacierLib, "index.html": indexHtml});
+        const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml });
         await adapter.updateCache();
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
@@ -313,16 +313,16 @@ describe("glacier as a model", () => {
         const [headerString, ...rows] = djiCsv.split("\n");
         const header = headerString.split(",");
         const djiData = rows.map(r => r.split(",")).map(r => {
-            const datum = {} as {[index: string]: string};
+            const datum = {} as { [index: string]: string };
             header.forEach((h, i) => {
                 datum[h] = r[i];
             });
             return datum;
-        }) as {Date: string, Open: string, Close: string, High: string, Low: string, Volume: string}[];
-        djiSource(djiData.map(d => ({year: +d.Date.substring(0, 4), close: +d.Close, open: +d.Open, low: +d.Low, high: +d.High, volume: +d.Volume})));
+        }) as { Date: string, Open: string, Close: string, High: string, Low: string, Volume: string }[];
+        djiSource(djiData.map(d => ({ year: +d.Date.substring(0, 4), close: +d.Close, open: +d.Open, low: +d.Low, high: +d.High, volume: +d.Volume })));
         const addFields = glacier.createAddFieldsAction([
-            {name: "Name", dataSource: carSource.id}, {name: "Miles_per_Gallon", dataSource: carSource.id}, {name: "Year", dataSource: carSource.id},
-            {name: "year", dataSource: djiSource.id}, {name: "high", dataSource: djiSource.id}
+            { name: "Name", dataSource: carSource.id }, { name: "Miles_per_Gallon", dataSource: carSource.id }, { name: "Year", dataSource: carSource.id },
+            { name: "year", dataSource: djiSource.id }, { name: "high", dataSource: djiSource.id }
         ]);
         dispatchSequence(model,
             addFields,
@@ -330,8 +330,8 @@ describe("glacier as a model", () => {
             glacier.createUpdateDescriptionAction("MPG v DJI"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
-            glacier.createAddChannelAction("x", {field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" }}),
-            glacier.createAddChannelAction("y", {field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" }})
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" } }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } })
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -340,5 +340,24 @@ describe("glacier as a model", () => {
         await baseline("7-MPGvDJI", await exporter.export());
         await carSource.remove();
         await djiSource.remove();
+    });
+
+    it("should be able to add default fields to sql adapter", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        dispatchSequence(model);
+        await adapter.defaultFieldSelection();
+        let state = model.getState();
+        expect(Object.keys(state.fields).length).to.equal(2);
+    });
+
+    it("should be able to add default fields to memory data source", async () => {
+        let model = glacier.createModel();
+        const carSource = glacier.createMemoryDataSource(model);
+        carSource(require(root`./data/cars.json`));
+        dispatchSequence(model);
+        await carSource.defaultFieldSelection();
+        let state = model.getState();
+        expect(Object.keys(state.fields).length).to.equal(2);
     });
 });

@@ -1,8 +1,8 @@
 import knex = require("knex");
 import redux = require("redux");
-import { ModelState, DataSourceId } from "../";
+import { ModelState, DataSourceId, Field } from "../";
 import { DataAdapter } from "./";
-import { createAddDataSourceAction, createUpdateDataCacheAction, createRemoveDataSourceAction } from "../actions";
+import { createAddDataSourceAction, createUpdateDataCacheAction, createRemoveDataSourceAction, createAddFieldsAction } from "../actions";
 
 
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
@@ -21,6 +21,22 @@ export class SqlDataSourceAdapter implements DataAdapter {
         store.dispatch(action);
         this.updateCache();
     };
+    async defaultFieldSelection(selectNumber = 2) {
+        this.assertConnection();
+        const tables: string[] = await this.describeTables();
+        if (tables.length < 1) throw new Error("Data source must have at least 1 table to select from.");
+        const defaultTable = tables[0];
+        let columns: string[] = await this.describeColumns(defaultTable);
+
+        if (selectNumber >= columns.length) throw new Error("Default columns cannot exceed the number of columns in the data source.");
+        columns = columns.slice(0, selectNumber);
+
+        const fields: Field[] = columns.map(column => {
+            return {name: column, table: defaultTable, dataSource: this.id};
+        });
+        const addAction = createAddFieldsAction(fields);
+        this.store.dispatch(addAction);
+    }
     assertConnection() {
         if (!this._conn) throw new Error("There is no connection - has the connection been closed?");
     }
@@ -39,15 +55,15 @@ export class SqlDataSourceAdapter implements DataAdapter {
     }
     describeColumns(table: string) {
         this.assertConnection();
-        this._conn
+        return this._conn
             .raw("Pragma table_info(" + table + ")")
             .then((data: { "name": string }[]) => {
                 let columns = data.map(column => {
                     return column.name;
                 })
-                    .filter(name => {
-                        return name != "rowguid";
-                    });
+                .filter(name => {
+                    return name != "rowguid";
+                });
                 return columns;
             });
     }
