@@ -21,15 +21,15 @@ export class SqlDataSourceAdapter implements DataAdapter {
         store.dispatch(action);
         this.updateCache();
     };
-    async defaultFieldSelection(selectNumnber = 2) {
+    async defaultFieldSelection(selectNumber = 2) {
         this.assertConnection();
         const tables: string[] = await this.describeTables();
         if (tables.length < 1) throw new Error("Data source must have at least 1 table to select from.");
         const defaultTable = tables[0];
         let columns: string[] = await this.describeColumns(defaultTable);
 
-        if (selectNumnber >= columns.length) throw new Error("Default columns cannot exceed the number of columns in the data source.");
-        columns = columns.slice(0, selectNumnber);
+        if (selectNumber >= columns.length) throw new Error("Default columns cannot exceed the number of columns in the data source.");
+        columns = columns.slice(0, selectNumber);
 
         const fields: Field[] = columns.map(column => {
             return {name: column, table: defaultTable, dataSource: this.id};

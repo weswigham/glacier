@@ -14,19 +14,19 @@ export function createMemoryDataSource(store: redux.Store<ModelState>): MemoryDa
     }) as MemoryDataSourceAdapter);
     const createAction = createAddDataSourceAction("memory", {}, {}, func);
     const id = createAction.payload.id;
-    func.defaultFieldSelection = async (selectNumnber = 2) => {
+    func.defaultFieldSelection = async (selectNumber = 2) => {
         if (storedData.length < 1) throw new Error("Cannot select fields with a data source that has 0 tables");
-
-        const table = storedData[0]
-        let keys = Object.keys(table)
-        if (selectNumnber >= keys.length) throw new Error("Default columns cannot exceed the number of columns in the data source.");
-        keys = keys.slice(0, selectNumnber);
+        if (selectNumber === undefined) throw new Error("Field selection number cannot be null or undefined");
+        const table = storedData[0];
+        let keys = Object.keys(table);
+        if (selectNumber >= keys.length) throw new Error("Default columns cannot exceed the number of columns in the data source.");
+        keys = keys.slice(0, selectNumber);
 
         const fields: Field[] = keys.map(column => {
-            return { name: column, table: table, dataSource: this.id };
+            return { name: column, table: table, dataSource: id };
         });
         const addAction = createAddFieldsAction(fields);
-        this.store.dispatch(addAction);
+        store.dispatch(addAction);
     };
     func.updateCache = () => {
         const action = createUpdateDataCacheAction(id, storedData);

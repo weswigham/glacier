@@ -3,7 +3,7 @@ import {DataSourceId} from "../model";
 export interface DataAdapter {
     updateCache(): Promise<any>;
     remove(): Promise<any>;
-    defaultFieldSelection(selectNumnber?: number): Promise<any>;
+    defaultFieldSelection(selectNumber?: number): Promise<any>;
     id: DataSourceId;
 }
 
