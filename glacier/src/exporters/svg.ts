@@ -95,10 +95,15 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             //   JOIN ? _data2 ON _data1.field1=_data2.field2
             //   ...
             //   JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM
+            // [WHERE <query>]
+            // [GROUP BY field [ASC|DESC]]
+            //
+            // TODO: Implement actions/state for GROUP BY - should be very straightforward. 
             const query = `
             SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
             FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
             ${transformFiltersToQuery(transforms.post_filter)}`;
+            console.log(query);
             const tables = dataSources.map(d => sources[+d].cache);
             tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
             const data = alasql(query, tables);
@@ -111,7 +116,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 case "fieldref": {
                     const t = thing as FieldSelector;
                     const field = fieldTable[t.field];
-                    return `${field.name}_${field.id}`;
+                    return `_data${field.dataSource}.${field.name}`;
                 }
                 case "constant": {
                     const c = thing as ConstantSelector;
@@ -130,6 +135,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         }
 
         // TODO: Support non-binary operatons IS NULL / IS NOT NULL / BETWEEN / IN
+        // TODO: Support calling transforms on fields, ie, YEAR(d) or MONTH(d)
         function transformFilterToQuery(filter: FilterDescriptor): string {
             switch (filter.type) {
                 case "AND": return `(${transformThingToQuery(filter.left)} AND ${transformThingToQuery(filter.right)})`;
