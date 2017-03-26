@@ -131,6 +131,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             }
         }
 
+        // TODO: Support non-binary operatons IS NULL / IS NOT NULL / BETWEEN / IN
         function transformFilterToQuery(filter: FilterDescriptor): string {
             switch (filter.type) {
                 case "AND": return `(${transformThingToQuery(filter.left)} AND ${transformThingToQuery(filter.right)})`;
@@ -140,7 +141,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 case "LT": return `(${transformThingToQuery(filter.left)} < ${transformThingToQuery(filter.right)})`;
                 case "LTE": return `(${transformThingToQuery(filter.left)} <= ${transformThingToQuery(filter.right)})`;
                 case "EQ": return `(${transformThingToQuery(filter.left)} = ${transformThingToQuery(filter.right)})`;
-                case "NE": return `(${transformThingToQuery(filter.left)} <> ${transformThingToQuery(filter.right)})`;
+                case "NE": return `(${transformThingToQuery(filter.left)} <> ${transformThingToQuery(filter.right)})`; // != may also work, depending.
                 case "LIKE": return `(${transformThingToQuery(filter.left)} LIKE ${transformThingToQuery(filter.right)})`;
                 default: throw new Error(`Unexpected filter type ${filter.type}`);
             }

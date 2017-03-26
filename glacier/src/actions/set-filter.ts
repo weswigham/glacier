@@ -15,10 +15,10 @@ import {
 
 export type SetFilterAction = ReduxStandardAction<"SET_FILTER", FilterDescriptor | undefined>;
 
-export function createSetFieldAction(filter: FilterDescriptorArg | undefined) {
+export function createSetFieldAction(filter: FilterDescriptorArg | undefined): SetFilterAction {
     return {
         type: "SET_FILTER",
-        payload: filter ? walk(filter) : undefined
+        payload: filter ? walk(filter) as FilterDescriptor : undefined
     };
 
     function walk(filter: NestedDescriptorArg): NestedDescriptor {

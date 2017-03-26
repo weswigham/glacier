@@ -342,6 +342,46 @@ describe("glacier as a model", () => {
         await djiSource.remove();
     });
 
+    it("should enable consumers to filter over data", async () => {
+        let model = glacier.createModel();
+        const carSource = glacier.createMemoryDataSource(model);
+        carSource(require(root`./data/cars.json`));
+        const djiSource = glacier.createMemoryDataSource(model);
+        const djiCsv = fs.readFileSync(root`./data/dji.csv`).toString();
+        const [headerString, ...rows] = djiCsv.split("\n");
+        const header = headerString.split(",");
+        const djiData = rows.map(r => r.split(",")).map(r => {
+            const datum = {} as { [index: string]: string };
+            header.forEach((h, i) => {
+                datum[h] = r[i];
+            });
+            return datum;
+        }) as { Date: string, Open: string, Close: string, High: string, Low: string, Volume: string }[];
+        djiSource(djiData.map(d => ({ year: +d.Date.substring(0, 4), close: +d.Close, open: +d.Open, low: +d.Low, high: +d.High, volume: +d.Volume })));
+        const addFields = glacier.createAddFieldsAction([
+            { name: "Name", dataSource: carSource.id }, { name: "Miles_per_Gallon", dataSource: carSource.id }, { name: "Year", dataSource: carSource.id },
+            { name: "year", dataSource: djiSource.id }, { name: "high", dataSource: djiSource.id }
+        ]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("MPG v DJI"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" } }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } }),
+            glacier.createSetFieldAction({type: "GT" as any, left: addFields.payload.fields[1], right: 30})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await carSource.updateCache();
+        await djiSource.updateCache();
+        await baseline("8-MPGOver30vDJI", await exporter.export());
+        await carSource.remove();
+        await djiSource.remove();
+    });
+
+
     it("should be able to add default fields to sql adapter", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
