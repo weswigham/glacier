@@ -15,8 +15,6 @@ import {
     FilterDescriptor,
     NestedDescriptor,
     FieldSelector,
-    StringConstantSelector,
-    NumericConstantSelector,
     ConstantSelector
 } from "../";
 import {Exporter} from "./";

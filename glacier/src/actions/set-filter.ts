@@ -1,16 +1,10 @@
 import {ReduxStandardAction} from "./";
 import {
-    FieldId,
-    BinaryFilters,
     FilterDescriptor,
     NestedDescriptor,
     FilterDescriptorArg,
     NestedDescriptorArg,
     FieldDescriptor,
-    FieldSelector,
-    ConstantSelector,
-    StringConstantSelector,
-    NumericConstantSelector
 } from "../model";
 
 export type SetFilterAction = ReduxStandardAction<"SET_FILTER", FilterDescriptor | undefined>;
@@ -48,6 +42,6 @@ export function createSetFieldAction(filter: FilterDescriptorArg | undefined): S
         return {
             type: "fieldref",
             field: (filter as FieldDescriptor).id
-        }
+        };
     }
 }
