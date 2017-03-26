@@ -235,7 +235,7 @@ export type ValueSelector = ConstantSelector | FieldSelector;
 
 export type NestedDescriptor = FilterDescriptor | ValueSelector;
 
-export const BinaryFilters = Enum("AND", "OR", "GT", "GTE", "LT", "LTE", "EQ");
+export const BinaryFilters = Enum("AND", "OR", "GT", "GTE", "LT", "LTE", "EQ", "NE", "LIKE");
 
 export type BinaryFilterDescriptors = {
     [K in keyof typeof BinaryFilters]: {
@@ -251,7 +251,9 @@ export type FilterDescriptor =
   | BinaryFilterDescriptors["GTE"]
   | BinaryFilterDescriptors["LT"]
   | BinaryFilterDescriptors["LTE"]
-  | BinaryFilterDescriptors["EQ"];
+  | BinaryFilterDescriptors["EQ"]
+  | BinaryFilterDescriptors["NE"]
+  | BinaryFilterDescriptors["LIKE"];
 
 export type ValueSelectorArg = number | string | FieldDescriptor;
 
@@ -271,7 +273,9 @@ export type FilterDescriptorArg =
   | BinaryFilterDescriptorsArg["GTE"]
   | BinaryFilterDescriptorsArg["LT"]
   | BinaryFilterDescriptorsArg["LTE"]
-  | BinaryFilterDescriptorsArg["EQ"];
+  | BinaryFilterDescriptorsArg["EQ"]
+  | BinaryFilterDescriptorsArg["NE"]
+  | BinaryFilterDescriptorsArg["LIKE"];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

@@ -118,7 +118,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 case "constant": {
                     const c = thing as ConstantSelector;
                     if (c.kind === "string") {
-                        return `"${c.value.replace(`"`, `\\"`)}"`; // Escape strings
+                        return `'${c.value.replace(`'`, `\\'`)}'`; // Escape strings
                     }
                     else {
                         return `${c.value}`; // Numbers can be used verbatim. Probably.
@@ -138,8 +138,10 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 case "GT": return `(${transformThingToQuery(filter.left)} > ${transformThingToQuery(filter.right)})`;
                 case "GTE": return `(${transformThingToQuery(filter.left)} >= ${transformThingToQuery(filter.right)})`;
                 case "LT": return `(${transformThingToQuery(filter.left)} < ${transformThingToQuery(filter.right)})`;
-                case "LTE": return`(${transformThingToQuery(filter.left)} <= ${transformThingToQuery(filter.right)})`;
+                case "LTE": return `(${transformThingToQuery(filter.left)} <= ${transformThingToQuery(filter.right)})`;
                 case "EQ": return `(${transformThingToQuery(filter.left)} = ${transformThingToQuery(filter.right)})`;
+                case "NE": return `(${transformThingToQuery(filter.left)} <> ${transformThingToQuery(filter.right)})`;
+                case "LIKE": return `(${transformThingToQuery(filter.left)} LIKE ${transformThingToQuery(filter.right)})`;
                 default: throw new Error(`Unexpected filter type ${filter.type}`);
             }
         }
