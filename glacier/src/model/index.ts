@@ -1,4 +1,5 @@
 import {DataAdapter} from "../adapters";
+import {Enum} from "../util";
 
 export interface ModelState {
     readonly sources: SourcesModelState;
@@ -208,7 +209,69 @@ export interface JoinDescriptor {
 
 export interface TransformsState {
     readonly joins: JoinDescriptor[];
+    readonly post_filter: FilterDescriptor | undefined;
 }
+
+export interface NumericConstantSelector {
+    readonly type: "constant";
+    readonly kind: "number";
+    readonly value: number;
+}
+
+export interface StringConstantSelector {
+    readonly type: "constant";
+    readonly kind: "string";
+    readonly value: string;
+}
+
+export type ConstantSelector = NumericConstantSelector | StringConstantSelector;
+
+export interface FieldSelector {
+    readonly type: "fieldref";
+    readonly field: FieldId;
+}
+
+export type ValueSelector = ConstantSelector | FieldSelector;
+
+export type NestedDescriptor = FilterDescriptor | ValueSelector;
+
+export const BinaryFilters = Enum("AND", "OR", "GT", "GTE", "LT", "LTE", "EQ");
+
+export type BinaryFilterDescriptors = {
+    [K in keyof typeof BinaryFilters]: {
+        readonly type: K;
+        readonly left: NestedDescriptor;
+        readonly right: NestedDescriptor;
+    }
+}
+export type FilterDescriptor =
+  | BinaryFilterDescriptors["AND"]
+  | BinaryFilterDescriptors["OR"]
+  | BinaryFilterDescriptors["GT"]
+  | BinaryFilterDescriptors["GTE"]
+  | BinaryFilterDescriptors["LT"]
+  | BinaryFilterDescriptors["LTE"]
+  | BinaryFilterDescriptors["EQ"];
+
+export type ValueSelectorArg = number | string | FieldDescriptor;
+
+export type NestedDescriptorArg = FilterDescriptorArg | ValueSelectorArg;
+
+export type BinaryFilterDescriptorsArg = {
+    [K in keyof typeof BinaryFilters]: {
+        readonly type: K;
+        readonly left: NestedDescriptorArg;
+        readonly right: NestedDescriptorArg;
+    }
+}
+export type FilterDescriptorArg =
+  | BinaryFilterDescriptorsArg["AND"]
+  | BinaryFilterDescriptorsArg["OR"]
+  | BinaryFilterDescriptorsArg["GT"]
+  | BinaryFilterDescriptorsArg["GTE"]
+  | BinaryFilterDescriptorsArg["LT"]
+  | BinaryFilterDescriptorsArg["LTE"]
+  | BinaryFilterDescriptorsArg["EQ"];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

@@ -4,7 +4,21 @@ declare global {
 }
 import * as vega from "vega";
 import redux = require("redux");
-import {ModelState, MarkState, Encoding, ChannelState, FieldId, FieldState, ChannelDef} from "../";
+import {
+    ModelState,
+    MarkState,
+    Encoding,
+    ChannelState,
+    FieldId,
+    FieldState,
+    ChannelDef,
+    FilterDescriptor,
+    NestedDescriptor,
+    FieldSelector,
+    StringConstantSelector,
+    NumericConstantSelector,
+    ConstantSelector
+} from "../";
 import {Exporter} from "./";
 import alasql = require("alasql");
 
@@ -86,13 +100,55 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             const query = `
             SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
             FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
-            `;
+            ${transformFiltersToQuery(transforms.post_filter)}`;
             const tables = dataSources.map(d => sources[+d].cache);
             tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
             const data = alasql(query, tables);
             spec.data = {values: data};
             spec.encoding = remapFieldsToJoinNames(channels, fieldTable) as Encoding;
         }
+
+        function transformThingToQuery(thing: NestedDescriptor): string {
+            switch (thing.type) {
+                case "fieldref": {
+                    const t = thing as FieldSelector;
+                    const field = fieldTable[t.field];
+                    return `${field.name}_${field.id}`;
+                }
+                case "constant": {
+                    const c = thing as ConstantSelector;
+                    if (c.kind === "string") {
+                        return `"${c.value.replace(`"`, `\\"`)}"`; // Escape strings
+                    }
+                    else {
+                        return `${c.value}`; // Numbers can be used verbatim. Probably.
+                    }
+                }
+                default: {
+                    const f = thing as FilterDescriptor;
+                    return transformFilterToQuery(f);
+                }
+            }
+        }
+
+        function transformFilterToQuery(filter: FilterDescriptor): string {
+            switch (filter.type) {
+                case "AND": return `(${transformThingToQuery(filter.left)} AND ${transformThingToQuery(filter.right)})`;
+                case "OR": return `(${transformThingToQuery(filter.left)} OR ${transformThingToQuery(filter.right)})`;
+                case "GT": return `(${transformThingToQuery(filter.left)} > ${transformThingToQuery(filter.right)})`;
+                case "GTE": return `(${transformThingToQuery(filter.left)} >= ${transformThingToQuery(filter.right)})`;
+                case "LT": return `(${transformThingToQuery(filter.left)} < ${transformThingToQuery(filter.right)})`;
+                case "LTE": return`(${transformThingToQuery(filter.left)} <= ${transformThingToQuery(filter.right)})`;
+                case "EQ": return `(${transformThingToQuery(filter.left)} = ${transformThingToQuery(filter.right)})`;
+                default: throw new Error(`Unexpected filter type ${filter.type}`);
+            }
+        }
+
+        function transformFiltersToQuery(filter: FilterDescriptor | undefined): string {
+            if (filter === undefined) return "";
+            return `WHERE ${transformFilterToQuery(filter)}`;
+        }
+
         return await new Promise<string>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);
             vega.parse.spec(compiled, chart => {
