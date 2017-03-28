@@ -370,7 +370,7 @@ describe("glacier as a model", () => {
             glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" } }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } }),
-            glacier.createSetFieldAction({type: "GT" as any, left: addFields.payload.fields[1], right: 30})
+            glacier.createSetFilterAction({type: "GT" as any, left: addFields.payload.fields[1], right: 30})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -393,7 +393,7 @@ describe("glacier as a model", () => {
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [0, 2000] } }),
-            glacier.createSetFieldAction({type: "LT", left: addFields.payload.fields[1], right: 2000})
+            glacier.createSetFilterAction({type: "LT", left: addFields.payload.fields[1], right: 2000})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -413,7 +413,7 @@ describe("glacier as a model", () => {
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [0, 2000] } }),
-            glacier.createSetFieldAction({type: "AND", left: {type: "LT", left: addFields.payload.fields[1], right: 2000}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
+            glacier.createSetFilterAction({type: "AND", left: {type: "LT", left: addFields.payload.fields[1], right: 2000}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -433,7 +433,7 @@ describe("glacier as a model", () => {
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
-            glacier.createSetFieldAction({type: "OR", left: {type: "LIKE", left: addFields.payload.fields[2], right: "FR-%"}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
+            glacier.createSetFilterAction({type: "OR", left: {type: "LIKE", left: addFields.payload.fields[2], right: "FR-%"}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -454,7 +454,7 @@ describe("glacier as a model", () => {
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
             glacier.createAddChannelAction("color", { field: addFields.payload.fields[2].id, type: "nominal", legend: { title: "Product Color" } }),
-            glacier.createSetFieldAction({type: "NE", left: addFields.payload.fields[2], right: "Black"})
+            glacier.createSetFilterAction({type: "NE", left: addFields.payload.fields[2], right: "Black"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -475,7 +475,7 @@ describe("glacier as a model", () => {
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
             glacier.createAddChannelAction("color", { field: addFields.payload.fields[2].id, type: "nominal" }),
-            glacier.createSetFieldAction({type: "EQ", left: addFields.payload.fields[2], right: "Black"})
+            glacier.createSetFilterAction({type: "EQ", left: addFields.payload.fields[2], right: "Black"})
         );
         const exporter = glacier.createSvgExporter(model);
 
@@ -498,7 +498,7 @@ describe("glacier as a model", () => {
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [500, 1500] } }),
-            glacier.createSetFieldAction({
+            glacier.createSetFilterAction({
                 type: "AND",
                 left: {
                     type: "GTE",

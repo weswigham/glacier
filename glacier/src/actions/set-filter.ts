@@ -9,7 +9,7 @@ import {
 
 export type SetFilterAction = ReduxStandardAction<"SET_FILTER", FilterDescriptor | undefined>;
 
-export function createSetFieldAction(filter: FilterDescriptorArg | undefined): SetFilterAction {
+export function createSetFilterAction(filter: FilterDescriptorArg | undefined): SetFilterAction {
     return {
         type: "SET_FILTER",
         payload: filter ? walk(filter) as FilterDescriptor : undefined
