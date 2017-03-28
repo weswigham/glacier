@@ -103,7 +103,6 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
             FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
             ${transformFiltersToQuery(transforms.post_filter)}`;
-            console.log(query);
             const tables = dataSources.map(d => sources[+d].cache);
             tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
             const data = alasql(query, tables);
@@ -111,15 +110,15 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             spec.encoding = remapFieldsToJoinNames(channels, fieldTable) as Encoding;
         }
 
-        function transformThingToQuery(thing: NestedDescriptor): string {
-            switch (thing.type) {
+        function transformDescriptorToQuery(descr: NestedDescriptor): string {
+            switch (descr.type) {
                 case "fieldref": {
-                    const t = thing as FieldSelector;
+                    const t = descr as FieldSelector;
                     const field = fieldTable[t.field];
                     return `_data${field.dataSource}.${field.name}`;
                 }
                 case "constant": {
-                    const c = thing as ConstantSelector;
+                    const c = descr as ConstantSelector;
                     if (c.kind === "string") {
                         return `'${c.value.replace(`'`, `\\'`)}'`; // Escape strings
                     }
@@ -128,7 +127,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                     }
                 }
                 default: {
-                    const f = thing as FilterDescriptor;
+                    const f = descr as FilterDescriptor;
                     return transformFilterToQuery(f);
                 }
             }
@@ -138,15 +137,15 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         // TODO: Support calling transforms on fields, ie, YEAR(d) or MONTH(d)
         function transformFilterToQuery(filter: FilterDescriptor): string {
             switch (filter.type) {
-                case "AND": return `(${transformThingToQuery(filter.left)} AND ${transformThingToQuery(filter.right)})`;
-                case "OR": return `(${transformThingToQuery(filter.left)} OR ${transformThingToQuery(filter.right)})`;
-                case "GT": return `(${transformThingToQuery(filter.left)} > ${transformThingToQuery(filter.right)})`;
-                case "GTE": return `(${transformThingToQuery(filter.left)} >= ${transformThingToQuery(filter.right)})`;
-                case "LT": return `(${transformThingToQuery(filter.left)} < ${transformThingToQuery(filter.right)})`;
-                case "LTE": return `(${transformThingToQuery(filter.left)} <= ${transformThingToQuery(filter.right)})`;
-                case "EQ": return `(${transformThingToQuery(filter.left)} = ${transformThingToQuery(filter.right)})`;
-                case "NE": return `(${transformThingToQuery(filter.left)} <> ${transformThingToQuery(filter.right)})`; // != may also work, depending.
-                case "LIKE": return `(${transformThingToQuery(filter.left)} LIKE ${transformThingToQuery(filter.right)})`;
+                case "AND": return `(${transformDescriptorToQuery(filter.left)} AND ${transformDescriptorToQuery(filter.right)})`;
+                case "OR": return `(${transformDescriptorToQuery(filter.left)} OR ${transformDescriptorToQuery(filter.right)})`;
+                case "GT": return `(${transformDescriptorToQuery(filter.left)} > ${transformDescriptorToQuery(filter.right)})`;
+                case "GTE": return `(${transformDescriptorToQuery(filter.left)} >= ${transformDescriptorToQuery(filter.right)})`;
+                case "LT": return `(${transformDescriptorToQuery(filter.left)} < ${transformDescriptorToQuery(filter.right)})`;
+                case "LTE": return `(${transformDescriptorToQuery(filter.left)} <= ${transformDescriptorToQuery(filter.right)})`;
+                case "EQ": return `(${transformDescriptorToQuery(filter.left)} = ${transformDescriptorToQuery(filter.right)})`;
+                case "NE": return `(${transformDescriptorToQuery(filter.left)} <> ${transformDescriptorToQuery(filter.right)})`; // != may also work, depending.
+                case "LIKE": return `(${transformDescriptorToQuery(filter.left)} LIKE ${transformDescriptorToQuery(filter.right)})`;
                 default: throw new Error(`Unexpected filter type ${filter.type}`);
             }
         }
