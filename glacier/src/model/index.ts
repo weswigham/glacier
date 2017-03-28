@@ -1,4 +1,5 @@
 import {DataAdapter} from "../adapters";
+import {Enum} from "../util";
 
 export interface ModelState {
     readonly sources: SourcesModelState;
@@ -58,7 +59,7 @@ export interface FieldChannelDef extends BaseChannelDef {
 
 export interface ValueChannelDef extends BaseChannelDef {
     // Used for specifying constant values rather than fields, mutually exclusive with field + type
-    field?: undefined; // This should make this discernable from field channels defs
+    field: undefined; // Makes discernable type-wise vs FieldChannelDef
     value: string | number; // Mutually exclusive with field
 }
 
@@ -148,10 +149,10 @@ export interface LegendDef {
     format?: string;
     labelAlign?: string;
     labelBaseline?: string;
-    labelCOlor?: string;
+    labelColor?: string;
     labelFont?: string;
     labelFontSize?: number;
-    shortTimeLabels: boolean;
+    shortTimeLabels?: boolean;
     symbolColor?: string;
     symbolShape?: string;
     symbolSize?: number;
@@ -160,7 +161,7 @@ export interface LegendDef {
     titleColor?: string;
     titleFont?: string;
     titleFontSize?: string;
-    titleFontWeight: string;
+    titleFontWeight?: string;
 }
 
 // TODO: Pull detailed Encoding type from latest vega-lite dts
@@ -208,7 +209,73 @@ export interface JoinDescriptor {
 
 export interface TransformsState {
     readonly joins: JoinDescriptor[];
+    readonly post_filter: FilterDescriptor | undefined;
 }
+
+export interface NumericConstantSelector {
+    readonly type: "constant";
+    readonly kind: "number";
+    readonly value: number;
+}
+
+export interface StringConstantSelector {
+    readonly type: "constant";
+    readonly kind: "string";
+    readonly value: string;
+}
+
+export type ConstantSelector = NumericConstantSelector | StringConstantSelector;
+
+export interface FieldSelector {
+    readonly type: "fieldref";
+    readonly field: FieldId;
+}
+
+export type ValueSelector = ConstantSelector | FieldSelector;
+
+export type NestedDescriptor = FilterDescriptor | ValueSelector;
+
+export const BinaryFilters = Enum("AND", "OR", "GT", "GTE", "LT", "LTE", "EQ", "NE", "LIKE");
+
+export type BinaryFilterDescriptors = {
+    [K in keyof typeof BinaryFilters]: {
+        readonly type: K;
+        readonly left: NestedDescriptor;
+        readonly right: NestedDescriptor;
+    }
+}
+export type FilterDescriptor =
+  | BinaryFilterDescriptors["AND"]
+  | BinaryFilterDescriptors["OR"]
+  | BinaryFilterDescriptors["GT"]
+  | BinaryFilterDescriptors["GTE"]
+  | BinaryFilterDescriptors["LT"]
+  | BinaryFilterDescriptors["LTE"]
+  | BinaryFilterDescriptors["EQ"]
+  | BinaryFilterDescriptors["NE"]
+  | BinaryFilterDescriptors["LIKE"];
+
+export type ValueSelectorArg = number | string | FieldDescriptor;
+
+export type NestedDescriptorArg = FilterDescriptorArg | ValueSelectorArg;
+
+export type BinaryFilterDescriptorsArg = {
+    [K in keyof typeof BinaryFilters]: {
+        readonly type: K;
+        readonly left: NestedDescriptorArg;
+        readonly right: NestedDescriptorArg;
+    }
+}
+export type FilterDescriptorArg =
+  | BinaryFilterDescriptorsArg["AND"]
+  | BinaryFilterDescriptorsArg["OR"]
+  | BinaryFilterDescriptorsArg["GT"]
+  | BinaryFilterDescriptorsArg["GTE"]
+  | BinaryFilterDescriptorsArg["LT"]
+  | BinaryFilterDescriptorsArg["LTE"]
+  | BinaryFilterDescriptorsArg["EQ"]
+  | BinaryFilterDescriptorsArg["NE"]
+  | BinaryFilterDescriptorsArg["LIKE"];
 
 export interface MemoryDataSource extends DataSource<"memory", {}, any> {}
 export interface SqliteFileDataSource extends DataSource<"sqlite-file", {path: string}, any> {}

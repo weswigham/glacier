@@ -3,7 +3,7 @@ import { AllActions } from "../actions";
 
 export function transforms(state: TransformsState | undefined, action: AllActions): TransformsState {
     if (!state) {
-        return { joins: [] };
+        return { joins: [], post_filter: undefined };
     }
     if (action.error) {
         throw action.error;
@@ -18,6 +18,9 @@ export function transforms(state: TransformsState | undefined, action: AllAction
                 throw new Error("Attempted to remove a join which does not exist in the state.");
             }
             return {...state, joins};
+        }
+        case "SET_FILTER": {
+            return {...state, post_filter: action.payload};
         }
         default: return state;
     }

@@ -4,7 +4,19 @@ declare global {
 }
 import * as vega from "vega";
 import redux = require("redux");
-import {ModelState, MarkState, Encoding, ChannelState, FieldId, FieldState, ChannelDef} from "../";
+import {
+    ModelState,
+    MarkState,
+    Encoding,
+    ChannelState,
+    FieldId,
+    FieldState,
+    ChannelDef,
+    FilterDescriptor,
+    NestedDescriptor,
+    FieldSelector,
+    ConstantSelector
+} from "../";
 import {Exporter} from "./";
 import alasql = require("alasql");
 
@@ -50,6 +62,13 @@ function remapFieldsToJoinNames(channels: ChannelState, fields: FieldState): Cha
                     if (!replacement.axis) {
                         replacement.axis = {title: lookupName(f, fields)};
                     }
+                    // And patch legend titles
+                    if (replacement.legend && !replacement.legend.title) {
+                        replacement.legend.title = lookupName(f, fields);
+                    }
+                    if (!replacement.legend) {
+                        replacement.legend = {title: lookupName(f, fields)};
+                    }
                 }
             }
         }
@@ -70,29 +89,97 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         const spec: MarkState & {data?: any} & {encoding?: Encoding} = Object.create(marks);
         // Simple case: all selected fields from same data source
         const dataSources = Object.keys(fields.reduce((state, f) => (state[f.dataSource] = true, state), {} as { [index: number]: boolean }));
-        if (dataSources.length === 1) {
+        if (dataSources.length === 1 && !transforms.post_filter) { // Only use fast path if there's no required joins and no filters
             spec.data = {
                 values: fields.map(f => sources[f.dataSource].cache)[0]
             };
             spec.encoding = remapFieldsToNames(channels, fieldTable) as Encoding;
         }
         else {
-            // TODO: Issue error when there aren't enough joins to join all selected fields!
-            // join across all utilized data sources using the field information provided
-            // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM FROM ? _data1
-            //   JOIN ? _data2 ON _data1.field1=_data2.field2
-            //   ...
-            //   JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM
-            const query = `
-            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
-            FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
-            `;
+            const query = generateQuery();
             const tables = dataSources.map(d => sources[+d].cache);
             tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
             const data = alasql(query, tables);
             spec.data = {values: data};
             spec.encoding = remapFieldsToJoinNames(channels, fieldTable) as Encoding;
         }
+
+        // TODO: Issue error when there aren't enough joins to join all selected fields!
+        // join across all utilized data sources using the field information provided
+        // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM
+        // FROM ? _data1
+        //   [JOIN ? _data2 ON _data1.field1=_data2.field2]
+        //   ...
+        //   [JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM]
+        // [WHERE <query>]
+        // [GROUP BY _field1 [ASC|DESC]]
+        //
+        // TODO: Implement actions/state for GROUP BY - should be very straightforward.
+        function generateQuery() {
+            const query = `
+            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
+            ${transforms.joins && transforms.joins.length ? createJoinList() : createDataInsert()}
+            ${transformFiltersToQuery(transforms.post_filter)}`;
+            return query;
+        }
+
+        function createJoinList() {
+            return `FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource}
+                ${transforms.joins.map(d => 
+                    `JOIN ? _data${fieldTable[d.left].dataSource} ON
+                        _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `
+                ).join("\n")}`;
+        }
+
+        function createDataInsert() {
+            return `FROM ? _data${fields[0].dataSource}`;
+        }
+
+        function transformDescriptorToQuery(descr: NestedDescriptor): string {
+            switch (descr.type) {
+                case "fieldref": {
+                    const t = descr as FieldSelector;
+                    const field = fieldTable[t.field];
+                    return `_data${field.dataSource}.${field.name}`;
+                }
+                case "constant": {
+                    const c = descr as ConstantSelector;
+                    if (c.kind === "string") {
+                        return `'${c.value.replace(`'`, `\\'`)}'`; // Escape strings
+                    }
+                    else {
+                        return `${c.value}`; // Numbers can be used verbatim. Probably.
+                    }
+                }
+                default: {
+                    const f = descr as FilterDescriptor;
+                    return transformFilterToQuery(f);
+                }
+            }
+        }
+
+        // TODO: Support non-binary operatons IS NULL / IS NOT NULL / BETWEEN / IN
+        // TODO: Support calling transforms on fields, ie, YEAR(d) or MONTH(d)
+        function transformFilterToQuery(filter: FilterDescriptor): string {
+            switch (filter.type) {
+                case "AND": return `(${transformDescriptorToQuery(filter.left)} AND ${transformDescriptorToQuery(filter.right)})`;
+                case "OR": return `(${transformDescriptorToQuery(filter.left)} OR ${transformDescriptorToQuery(filter.right)})`;
+                case "GT": return `(${transformDescriptorToQuery(filter.left)} > ${transformDescriptorToQuery(filter.right)})`;
+                case "GTE": return `(${transformDescriptorToQuery(filter.left)} >= ${transformDescriptorToQuery(filter.right)})`;
+                case "LT": return `(${transformDescriptorToQuery(filter.left)} < ${transformDescriptorToQuery(filter.right)})`;
+                case "LTE": return `(${transformDescriptorToQuery(filter.left)} <= ${transformDescriptorToQuery(filter.right)})`;
+                case "EQ": return `(${transformDescriptorToQuery(filter.left)} = ${transformDescriptorToQuery(filter.right)})`;
+                case "NE": return `(${transformDescriptorToQuery(filter.left)} <> ${transformDescriptorToQuery(filter.right)})`; // != may also work, depending.
+                case "LIKE": return `(${transformDescriptorToQuery(filter.left)} LIKE ${transformDescriptorToQuery(filter.right)})`;
+                default: throw new Error(`Unexpected filter type ${(filter as any).type}`);
+            }
+        }
+
+        function transformFiltersToQuery(filter: FilterDescriptor | undefined): string {
+            if (filter === undefined) return "";
+            return `WHERE ${transformFilterToQuery(filter)}`;
+        }
+
         return await new Promise<string>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);
             vega.parse.spec(compiled, chart => {

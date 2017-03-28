@@ -9,6 +9,7 @@ export * from "./remove-fields";
 export * from "./add-join";
 export * from "./remove-join";
 export * from "./channels";
+export * from "./set-filter";
 
 import {AddDataSourceAction} from "./add-data-source";
 import {RemoveDataSourceAction} from "./remove-data-source";
@@ -19,6 +20,7 @@ import {UpdateDescriptionAction, UpdateMarkTypeAction, UpdateSizeAction} from ".
 import {AddJoinAction} from "./add-join";
 import {RemoveJoinAction} from "./remove-join";
 import {AddChannelAction, RemoveChannelAction, UpdateChannelAction} from "./channels";
+import {SetFilterAction} from "./set-filter";
 import {Channel} from "../model";
 
 export type AllActions = AddDataSourceAction<string, {}, {}>
@@ -34,4 +36,5 @@ export type AllActions = AddDataSourceAction<string, {}, {}>
     | RemoveJoinAction
     | AddChannelAction<Channel>
     | RemoveChannelAction<Channel>
-    | UpdateChannelAction<Channel>;
+    | UpdateChannelAction<Channel>
+    | SetFilterAction;
