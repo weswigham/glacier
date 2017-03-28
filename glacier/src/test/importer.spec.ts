@@ -382,6 +382,143 @@ describe("glacier as a model", () => {
     });
 
 
+    it("should be able to filter data from a single data source", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [0, 2000] } }),
+            glacier.createSetFieldAction({type: "LT", left: addFields.payload.fields[1], right: 2000})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("9-FilteredData", await exporter.export());
+        await adapter.remove();
+    });
+
+    it("should be able to apply AND filters", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "ProductNumber", table: "Product", dataSource: adapter.id }]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [0, 2000] } }),
+            glacier.createSetFieldAction({type: "AND", left: {type: "LT", left: addFields.payload.fields[1], right: 2000}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("10-ORFilter", await exporter.export());
+        await adapter.remove();
+    });
+
+    it("should be able to apply OR filters", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "ProductNumber", table: "Product", dataSource: adapter.id }]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
+            glacier.createSetFieldAction({type: "OR", left: {type: "LIKE", left: addFields.payload.fields[2], right: "FR-%"}, right: {type: "LIKE", left: addFields.payload.fields[2], right: "BK-%"}})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("11-ANDFilter", await exporter.export());
+        await adapter.remove();
+    });
+
+    it("should be able to apply NE filters", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Color", table: "Product", dataSource: adapter.id }]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
+            glacier.createAddChannelAction("color", { field: addFields.payload.fields[2].id, type: "nominal", legend: { title: "Product Color" } }),
+            glacier.createSetFieldAction({type: "NE", left: addFields.payload.fields[2], right: "Black"})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("12-NEFilter", await exporter.export());
+        await adapter.remove();
+    });
+
+    it("should be able to apply EQ filters", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }, { name: "Color", table: "Product", dataSource: adapter.id }]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative" }),
+            glacier.createAddChannelAction("color", { field: addFields.payload.fields[2].id, type: "nominal" }),
+            glacier.createSetFieldAction({type: "EQ", left: addFields.payload.fields[2], right: "Black"})
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("13-EQFilter", await exporter.export());
+        await adapter.remove();
+    });
+
+    it("should be able to apply GTE and LTE filters", async () => {
+        let model = glacier.createModel();
+        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
+        const addFields = glacier.createAddFieldsAction([
+            { name: "DaysToManufacture", table: "Product", dataSource: adapter.id },
+            { name: "ListPrice", table: "Product", dataSource: adapter.id }
+        ]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("Test Plot"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "quantitative" }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", scale: { domain: [500, 1500] } }),
+            glacier.createSetFieldAction({
+                type: "AND",
+                left: {
+                    type: "GTE",
+                    left: addFields.payload.fields[1],
+                    right: 500
+                },
+                right: {
+                    type: "LTE",
+                    left: addFields.payload.fields[1],
+                    right: 1500
+                }
+            })
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await adapter.updateCache();
+        await baseline("14-GTELTEFilter", await exporter.export());
+        await adapter.remove();
+    });
+
     it("should be able to add default fields to sql adapter", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);

@@ -59,7 +59,7 @@ export interface FieldChannelDef extends BaseChannelDef {
 
 export interface ValueChannelDef extends BaseChannelDef {
     // Used for specifying constant values rather than fields, mutually exclusive with field + type
-    field?: undefined; // This should make this discernable from field channels defs
+    field: undefined; // Makes discernable type-wise vs FieldChannelDef
     value: string | number; // Mutually exclusive with field
 }
 
@@ -149,10 +149,10 @@ export interface LegendDef {
     format?: string;
     labelAlign?: string;
     labelBaseline?: string;
-    labelCOlor?: string;
+    labelColor?: string;
     labelFont?: string;
     labelFontSize?: number;
-    shortTimeLabels: boolean;
+    shortTimeLabels?: boolean;
     symbolColor?: string;
     symbolShape?: string;
     symbolSize?: number;
@@ -161,7 +161,7 @@ export interface LegendDef {
     titleColor?: string;
     titleFont?: string;
     titleFontSize?: string;
-    titleFontWeight: string;
+    titleFontWeight?: string;
 }
 
 // TODO: Pull detailed Encoding type from latest vega-lite dts

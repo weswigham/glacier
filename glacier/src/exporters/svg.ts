@@ -62,6 +62,13 @@ function remapFieldsToJoinNames(channels: ChannelState, fields: FieldState): Cha
                     if (!replacement.axis) {
                         replacement.axis = {title: lookupName(f, fields)};
                     }
+                    // And patch legend titles
+                    if (replacement.legend && !replacement.legend.title) {
+                        replacement.legend.title = lookupName(f, fields);
+                    }
+                    if (!replacement.legend) {
+                        replacement.legend = {title: lookupName(f, fields)};
+                    }
                 }
             }
         }
@@ -82,32 +89,50 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         const spec: MarkState & {data?: any} & {encoding?: Encoding} = Object.create(marks);
         // Simple case: all selected fields from same data source
         const dataSources = Object.keys(fields.reduce((state, f) => (state[f.dataSource] = true, state), {} as { [index: number]: boolean }));
-        if (dataSources.length === 1) {
+        if (dataSources.length === 1 && !transforms.post_filter) { // Only use fast path if there's no required joins and no filters
             spec.data = {
                 values: fields.map(f => sources[f.dataSource].cache)[0]
             };
             spec.encoding = remapFieldsToNames(channels, fieldTable) as Encoding;
         }
         else {
-            // TODO: Issue error when there aren't enough joins to join all selected fields!
-            // join across all utilized data sources using the field information provided
-            // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM FROM ? _data1
-            //   JOIN ? _data2 ON _data1.field1=_data2.field2
-            //   ...
-            //   JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM
-            // [WHERE <query>]
-            // [GROUP BY field [ASC|DESC]]
-            //
-            // TODO: Implement actions/state for GROUP BY - should be very straightforward. 
-            const query = `
-            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
-            FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource} ${transforms.joins.map(d => `JOIN ? _data${fieldTable[d.left].dataSource} ON _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `).join("\n")}
-            ${transformFiltersToQuery(transforms.post_filter)}`;
+            const query = generateQuery();
             const tables = dataSources.map(d => sources[+d].cache);
             tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
             const data = alasql(query, tables);
             spec.data = {values: data};
             spec.encoding = remapFieldsToJoinNames(channels, fieldTable) as Encoding;
+        }
+
+        // TODO: Issue error when there aren't enough joins to join all selected fields!
+        // join across all utilized data sources using the field information provided
+        // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM
+        // FROM ? _data1
+        //   [JOIN ? _data2 ON _data1.field1=_data2.field2]
+        //   ...
+        //   [JOIN ? _dataN ON _dataN-1.fieldN=_dataN.fieldM]
+        // [WHERE <query>]
+        // [GROUP BY _field1 [ASC|DESC]]
+        //
+        // TODO: Implement actions/state for GROUP BY - should be very straightforward.
+        function generateQuery() {
+            const query = `
+            SELECT ${fields.map(f => `_data${f.dataSource}.${f.name} AS ${f.name}_${f.id}`).join(", ")}
+            ${transforms.joins && transforms.joins.length ? createJoinList() : createDataInsert()}
+            ${transformFiltersToQuery(transforms.post_filter)}`;
+            return query;
+        }
+
+        function createJoinList() {
+            return `FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource}
+                ${transforms.joins.map(d => 
+                    `JOIN ? _data${fieldTable[d.left].dataSource} ON
+                        _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `
+                ).join("\n")}`;
+        }
+
+        function createDataInsert() {
+            return `FROM ? _data${fields[0].dataSource}`;
         }
 
         function transformDescriptorToQuery(descr: NestedDescriptor): string {
