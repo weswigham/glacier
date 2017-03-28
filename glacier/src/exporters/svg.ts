@@ -146,7 +146,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 case "EQ": return `(${transformDescriptorToQuery(filter.left)} = ${transformDescriptorToQuery(filter.right)})`;
                 case "NE": return `(${transformDescriptorToQuery(filter.left)} <> ${transformDescriptorToQuery(filter.right)})`; // != may also work, depending.
                 case "LIKE": return `(${transformDescriptorToQuery(filter.left)} LIKE ${transformDescriptorToQuery(filter.right)})`;
-                default: throw new Error(`Unexpected filter type ${filter.type}`);
+                default: throw new Error(`Unexpected filter type ${(filter as any).type}`);
             }
         }
 

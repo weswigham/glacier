@@ -39,7 +39,7 @@ gulp.task("lint", "Runs tslint over the typescript within the project", (done) =
 });
 
 function createBuildStream(release?: boolean) {
-  const ignore = new webpack.IgnorePlugin(/(^fs$|cptable|jszip|xlsx|xls|^es6-promise$|^net$|^tls$|^forever-agent$|^tough-cookie$|cpexcel|^path$)/);
+  const ignore = new webpack.IgnorePlugin(/(^fs$|cptable|jszip|xlsx|xls|^es6-promise$|^net$|^tls$|^forever-agent$|^tough-cookie$|cpexcel|^path$|^react-native)/);
   return gulp.src("src/index.ts")
     .pipe(ws({
       output: {
