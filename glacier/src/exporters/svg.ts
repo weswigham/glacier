@@ -104,8 +104,6 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             spec.encoding = remapFieldsToJoinNames(channels, fieldTable) as Encoding;
         }
 
-        // TODO: Issue error when there aren't enough joins to join all selected fields!
-        // join across all utilized data sources using the field information provided
         // SELECT _data1.field1 AS _field1, ... _dataN.fieldM AS _fieldM
         // FROM ? _data1
         //   [JOIN ? _data2 ON _data1.field1=_data2.field2]
@@ -124,11 +122,28 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
         }
 
         function createJoinList() {
-            return `FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource}
-                ${transforms.joins.map(d => 
-                    `JOIN ? _data${fieldTable[d.left].dataSource} ON
-                        _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `
-                ).join("\n")}`;
+            const fromSource = fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource;
+            const joinedSet = {[fromSource]: 0};
+            const query = `FROM ? _data${fromSource}
+                ${transforms.joins.map(d => {
+                    const l = fieldTable[d.left];
+                    const lsource = l.dataSource;
+                    joinedSet[lsource] = joinedSet[lsource] || 0;
+                    joinedSet[lsource]++;
+                    const r = fieldTable[d.right];
+                    const rsource = r.dataSource;
+                    joinedSet[rsource] = joinedSet[rsource] || 0;
+                    joinedSet[rsource]++;
+                    return `JOIN ? _data${lsource} ON
+                        _data${lsource}.${l.name}=_data${rsource}.${r.name} `;
+                }).join("\n")}`;
+
+            // All data sources repersented by the given fields should appear in the joined set.
+            for (const f of fields) {
+                if (!joinedSet[f.dataSource]) throw new Error(`Field ${f.id} references data source ${f.dataSource} which does not have any accompanying joins.`);
+            }
+
+            return query;
         }
 
         function createDataInsert() {
