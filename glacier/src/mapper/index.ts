@@ -80,9 +80,7 @@ export function compileState({sources, marks, fields: fieldTable, transforms, ch
                 values: fields.map(f => sources[f.dataSource].cache)[0]
             },
             encoding: remapFieldsToNames(channels, fieldTable),
-            mark: marks.mark,
-            description: marks.description,
-            size: marks.size
+            ...marks
         }
     }
     else {
@@ -94,9 +92,7 @@ export function compileState({sources, marks, fields: fieldTable, transforms, ch
                 values: alasql(query, tables)
             },
             encoding: remapFieldsToJoinNames(channels, fieldTable),
-            mark: marks.mark,
-            description: marks.description,
-            size: marks.size
+            ...marks
         }
     }
 
