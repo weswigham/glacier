@@ -9,3 +9,5 @@ export interface DataAdapter {
 
 export * from "./memory";
 export * from "./sql";
+export * from "./rawcsv";
+export * from "./jsonblob";
