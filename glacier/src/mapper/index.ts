@@ -122,7 +122,7 @@ export function compileState({sources, marks, fields: fieldTable, transforms, ch
 
     function createJoinList() {
         return `FROM ? _data${fieldTable[transforms.joins[transforms.joins.length - 1].right].dataSource}
-            ${transforms.joins.map(d => 
+            ${transforms.joins.map(d =>
                 `JOIN ? _data${fieldTable[d.left].dataSource} ON
                     _data${fieldTable[d.left].dataSource}.${fieldTable[d.left].name}=_data${fieldTable[d.right].dataSource}.${fieldTable[d.right].name} `
             ).join("\n")}`;
