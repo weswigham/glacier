@@ -519,6 +519,35 @@ describe("glacier as a model", () => {
         await adapter.remove();
     });
 
+
+    it("should enable consumers to join data from CSV and JSON", async () => {
+        let model = glacier.createModel();
+        const carSource = glacier.createJSONDataSource(model, fs.readFileSync(root`./data/cars.json`).toString());
+        const djiSource = glacier.createCSVDataSource(model, fs.readFileSync(root`./data/dji.csv`).toString());
+        const addFields = glacier.createAddFieldsAction([
+            { name: "Name", dataSource: carSource.id }, { name: "Miles_per_Gallon", dataSource: carSource.id }, { name: "Year", dataSource: carSource.id },
+            { name: "year", dataSource: djiSource.id }, { name: "High", dataSource: djiSource.id }
+        ]);
+        dispatchSequence(model,
+            addFields,
+            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateDescriptionAction("MPG v DJI"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddJoinAction(addFields.payload.fields[2].id, addFields.payload.fields[3].id),
+            glacier.createAddChannelAction("x", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" } }),
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[4].id, type: "quantitative", axis: { title: "Dow Jones Indstrial Average" } })
+        );
+        const exporter = glacier.createSvgExporter(model);
+
+        await carSource.updateCache();
+        await djiSource.updateCache();
+        console.log(Object.keys(model.getState().sources[djiSource.id].cache[0]));
+        // Same as prior test, just uses different loaders
+        await baseline("15-MPGvDJI2", await exporter.export());
+        await carSource.remove();
+        await djiSource.remove();
+    });
+
     it("should be able to add default fields to sql adapter", async () => {
         let model = glacier.createModel();
         const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);

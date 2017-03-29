@@ -8,7 +8,7 @@ import { SinglyLoadedMemoryDataSource } from "./single-memory-load-base";
 export interface CSVDataSourceAdapter extends DataAdapter {}
 
 export function createCSVDataSource(store: redux.Store<ModelState>, content: string): CSVDataSourceAdapter {
-    const storedData = alasql(`SELECT * FROM CSV(?, {headers:false})`, [content]);
+    const storedData = alasql(`SELECT * FROM CSV(?, {headers:true})`, [content]);
     const adapter: CSVDataSourceAdapter = new SinglyLoadedMemoryDataSource(storedData, store);
     const createAction = createAddDataSourceAction("rawcsv", {}, {}, adapter);
     adapter.id = createAction.payload.id;
