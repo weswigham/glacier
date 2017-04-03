@@ -549,11 +549,12 @@ describe("glacier as a model", () => {
         ]);
         dispatchSequence(model,
             addFields,
-            glacier.createUpdateMarkTypeAction("point"),
+            glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateDescriptionAction("MPG vs Time"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: addFields.payload.fields[0].id, type: "temporal", axis: { title: "Year" } }),
-            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" } })
+            glacier.createAddChannelAction("y", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" }, aggregate: "min" }),
+            glacier.createAddChannelAction("y2", { field: addFields.payload.fields[1].id, type: "quantitative", axis: { title: "MPG" }, aggregate: "max" })
         );
         const exporter = glacier.createSvgExporter(model);
 
