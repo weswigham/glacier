@@ -50,3 +50,5 @@ glacier/dist/**/*.d.ts
 data/baselines/local
 .DS_Store
 
+# vs code settings files
+.vscode
