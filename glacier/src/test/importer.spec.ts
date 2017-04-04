@@ -595,7 +595,7 @@ describe("glacier as a model", () => {
             glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateDescriptionAction("MPG vs Time"),
             glacier.createUpdateSizeAction(135, 400),
-            glacier.createAddChannelAction("x", { field: field(0), type: "temporal", axis: { title: "Year" }, timeUnit: "year" }),
+            glacier.createAddChannelAction("x", { field: field(0), type: "temporal", axis: { title: "Year", values: [{year: 1970}, {year: 1980}] }, timeUnit: "year" }),
             glacier.createAddChannelAction("y", { field: field(1), type: "quantitative", axis: { title: "MPG" }, aggregate: "min" }),
             glacier.createAddChannelAction("y2", { field: field(1), type: "quantitative", aggregate: "max" })
         ]

@@ -4474,7 +4474,15 @@
             "field": "Year",
             "type": "temporal",
             "axis": {
-                "title": "Year"
+                "title": "Year",
+                "values": [
+                    {
+                        "year": 1970
+                    },
+                    {
+                        "year": 1980
+                    }
+                ]
             },
             "timeUnit": "year"
         },
