@@ -62,7 +62,7 @@ function baseline(name: string, actualString: string): Promise<{ expected: Docum
                         try {
                             expect(actualText.textContent).to.equal(expectedText.textContent);
                         }
-                        catch(e) {
+                        catch (e) {
                             console.log(actualString);
                             throw e;
                         }
