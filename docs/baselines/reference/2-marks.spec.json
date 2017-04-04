@@ -2028,5 +2028,9 @@
             "field": "ListPrice",
             "type": "quantitative"
         }
-    }
+    },
+    "mark": "line",
+    "description": "Test Plot",
+    "width": 264,
+    "height": 255
 }

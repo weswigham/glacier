@@ -4499,5 +4499,9 @@
             "type": "quantitative",
             "aggregate": "max"
         }
-    }
+    },
+    "mark": "area",
+    "description": "MPG vs Time",
+    "width": 400,
+    "height": 135
 }
