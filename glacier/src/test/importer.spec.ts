@@ -111,7 +111,7 @@ async function baseline_internal(name: string, actualString: string, actualSpec:
     const aheight = +(actual.documentElement.getAttribute("height") || 0);
     expect(awidth).to.be.closeTo(ewidth, delta);
     expect(aheight).to.be.closeTo(eheight, delta);
-  
+
     return { expected, actual };
 
 
