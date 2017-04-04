@@ -28,57 +28,65 @@ describe("A smoke test suite", () => {
     });
 });
 
-/* tslint:disable:no-null-keyword */
-// XML parser and DOM document APIs require the usage of null :(
-function baseline(name: string, actualString: string): Promise<{ expected: Document, actual: Document }> {
-    expect(actualString).to.be.a("string");
+function writeFile(path: string, content: string): Promise<{}> {
     return new Promise((resolve, reject) => {
-        fs.writeFile(root`./data/baselines/local/${name}.svg`, actualString, err => {
+        fs.writeFile(path, content, err => {
             if (err) return reject(err);
-            fs.readFile(root`./data/baselines/reference/${name}.svg`, (err, xml) => {
-                if (err) return reject(new Error(`Reference baseline for ${name} does not yet exist!`));
-
-                try {
-                    const parser = new DOMParser();
-                    const expected = parser.parseFromString(xml.toString(), "image/svg+xml");
-                    const actual = parser.parseFromString(actualString, "image/svg+xml");
-                    const expectedTextResult = evaluate("//*[local-name() = 'text']", expected, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
-                    const actualTextResult = evaluate("//*[local-name() = 'text']", actual, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
-                    let textElements = 0;
-                    while (true) {
-                        const expectedText = expectedTextResult.iterateNext();
-                        const actualText = actualTextResult.iterateNext();
-                        if (expectedText == null && actualText == null) {
-                            break;
-                        }
-                        else if (expectedText == null) {
-                            throw new Error("More actual elements than expected");
-                        }
-                        else if (actualText == null) {
-                            throw new Error("More expected elements than actual");
-                        }
-
-                        textElements++;
-                        try {
-                            expect(actualText.textContent).to.equal(expectedText.textContent);
-                        }
-                        catch (e) {
-                            console.log(actualString);
-                            throw e;
-                        }
-                    }
-                    expect(textElements).to.be.greaterThan(0);
-                    expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
-                    expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
-
-                    return resolve({ expected, actual });
-                }
-                catch (e) {
-                    reject(e);
-                }
-            });
+            resolve();
         });
     });
+}
+
+function readFile(path: string): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        fs.readFile(path, (err, buf) => {
+            if (err) return reject(err);
+            resolve(buf);
+        });
+    });
+}
+
+/* tslint:disable:no-null-keyword */
+// XML parser and DOM document APIs require the usage of null :(
+async function baseline(name: string, actualString: string): Promise<{ expected: Document, actual: Document }> {
+    expect(actualString).to.be.a("string");
+
+    await writeFile(root`./data/baselines/local/${name}.svg`, actualString);
+    let xml: Buffer;
+    try {
+        xml = await readFile(root`./data/baselines/reference/${name}.svg`);
+    } catch (e) {
+        throw new Error(`Reference baseline for ${name} does not yet exist!`);
+    }
+    const parser = new DOMParser();
+    const expected = parser.parseFromString(xml.toString(), "image/svg+xml");
+    const actual = parser.parseFromString(actualString, "image/svg+xml");
+    const expectedTextResult = evaluate("//*[local-name() = 'text']", expected, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+    const actualTextResult = evaluate("//*[local-name() = 'text']", actual, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+    let textElements = 0;
+    while (true) {
+        const expectedText = expectedTextResult.iterateNext();
+        const actualText = actualTextResult.iterateNext();
+        if (expectedText == null && actualText == null) {
+            break;
+        }
+        else if (expectedText == null) {
+            throw new Error("More actual elements than expected");
+        }
+        else if (actualText == null) {
+            throw new Error("More expected elements than actual");
+        }
+
+        textElements++;
+        expect(actualText.textContent).to.equal(expectedText.textContent);
+    }
+    expect(textElements).to.be.greaterThan(0);
+    expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+    expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+
+    return { expected, actual };
+
+
 }
 /* tslint:enable:no-null-keyword */
 
