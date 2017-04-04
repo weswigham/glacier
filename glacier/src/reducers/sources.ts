@@ -12,23 +12,20 @@ function filterState(state: SourcesModelState, toRemove: number): SourcesModelSt
 export function sources(state: SourcesModelState | undefined, action: AllActions): SourcesModelState {
     if (!state) return {};
     if (action.error) {
-        // TODO: Logging? Graceful recovery? Error handler provided by consumer?
         throw action.error;
-        // return state;
     }
     switch (action.type) {
         case "ADD_DATA_SOURCE": {
-            // TODO: Consider issuing error if action.payload.uuid is already present in the state?
-            if (state[action.payload.id]) return state;
+            if (state[action.payload.id]) throw new Error(`Attempted to add data source with id ${action.payload.id} which already exists in the store.`);
             return {...state, [action.payload.id]: action.payload};
         }
         case "REMOVE_DATA_SOURCE": {
-            // TODO: Consider issuing error if action.payload.uuid is not already present in the state?
+            if (!state[action.payload.id]) throw new Error(`Attempted to remove data source with id ${action.payload.id} which does not exist in the store.`);
             return filterState(state, action.payload.id);
         }
         case "UPDATE_DATA_CACHE": {
             const found = state[action.payload.id];
-            if (!found) return state; // TODO: Issue error if no cache is found to place update into?
+            if (!found) throw new Error(`Attempted to update the cached data for data source with id ${action.payload.id} which did not exist in the store.`);
             return {...state, [action.payload.id]: {...found as DataSource<any, any, any>, cache: action.payload.cache}};
         }
         default: return state;

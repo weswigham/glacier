@@ -28,64 +28,128 @@ describe("A smoke test suite", () => {
     });
 });
 
-/* tslint:disable:no-null-keyword */
-// XML parser and DOM document APIs require the usage of null :(
-function baseline(name: string, actualString: string): Promise<{ expected: Document, actual: Document }> {
-    expect(actualString).to.be.a("string");
+function writeFile(path: string, content: string): Promise<{}> {
     return new Promise((resolve, reject) => {
-        fs.writeFile(root`./data/baselines/local/${name}.svg`, actualString, err => {
+        fs.writeFile(path, content, err => {
             if (err) return reject(err);
-            fs.readFile(root`./data/baselines/reference/${name}.svg`, (err, xml) => {
-                if (err) return reject(new Error(`Reference baseline for ${name} does not yet exist!`));
-
-                try {
-                    const parser = new DOMParser();
-                    const expected = parser.parseFromString(xml.toString(), "image/svg+xml");
-                    const actual = parser.parseFromString(actualString, "image/svg+xml");
-                    const expectedTextResult = evaluate("//*[local-name() = 'text']", expected, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
-                    const actualTextResult = evaluate("//*[local-name() = 'text']", actual, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
-                    let textElements = 0;
-                    while (true) {
-                        const expectedText = expectedTextResult.iterateNext();
-                        const actualText = actualTextResult.iterateNext();
-                        if (expectedText == null && actualText == null) {
-                            break;
-                        }
-                        else if (expectedText == null) {
-                            throw new Error("More actual elements than expected");
-                        }
-                        else if (actualText == null) {
-                            throw new Error("More expected elements than actual");
-                        }
-
-                        textElements++;
-                        expect(actualText.textContent).to.equal(expectedText.textContent);
-                    }
-                    expect(textElements).to.be.greaterThan(0);
-                    expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
-                    expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
-
-                    const delta = 20; // Due to platform differences, sometimes generated sizes are (slightly) different between platforms
-                    const ewidth = +(expected.documentElement.getAttribute("width") || 0);
-                    const eheight = +(expected.documentElement.getAttribute("height") || 0);
-
-                    const awidth = +(actual.documentElement.getAttribute("width") || 0);
-                    const aheight = +(actual.documentElement.getAttribute("height") || 0);
-                    expect(awidth).to.be.closeTo(ewidth, delta);
-                    expect(aheight).to.be.closeTo(eheight, delta);
-                    return resolve({ expected, actual });
-                }
-                catch (e) {
-                    reject(e);
-                }
-            });
+            resolve();
         });
     });
+}
+
+function readFile(path: string): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        fs.readFile(path, (err, buf) => {
+            if (err) return reject(err);
+            resolve(buf);
+        });
+    });
+}
+
+/* tslint:disable:no-null-keyword */
+// XML parser and DOM document APIs require the usage of null :(
+async function baseline_internal(name: string, actualString: string, actualSpec: object | "skip"): Promise<{ expected: Document, actual: Document }> {
+    expect(actualString).to.be.a("string");
+
+    await writeFile(root`./data/baselines/local/${name}.svg`, actualString);
+    actualSpec !== "skip" ? await writeFile(root`./data/baselines/local/${name}.spec.json`, JSON.stringify(actualSpec, null, 4)) : undefined;
+
+    let xml: Buffer;
+    try {
+        xml = await readFile(root`./data/baselines/reference/${name}.svg`);
+    } catch (e) {
+        throw new Error(`Reference svg baseline for ${name} does not yet exist!`);
+    }
+
+    let spec: object | undefined = undefined;
+    if (actualSpec !== "skip") {
+        try {
+            spec = JSON.parse((await readFile(root`./data/baselines/reference/${name}.spec.json`)).toString());
+        } catch (e) {
+            throw new Error(`Reference spec baseline for ${name} does not yet exist!`);
+        }
+    }
+
+    if (actualSpec !== "skip") {
+        if (!spec) throw new Error("No baseline spec loaded!");
+        // First, verify spec equality
+        expect(JSON.parse(JSON.stringify(actualSpec))).to.deep.equal(spec); // Stringify then parse to strip `undefined` valued keys
+    }
+
+    // Then loosely verify svg equality
+    const parser = new DOMParser();
+    const expected = parser.parseFromString(xml.toString(), "image/svg+xml");
+    const actual = parser.parseFromString(actualString, "image/svg+xml");
+    const expectedTextResult = evaluate("//*[local-name() = 'text']", expected, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+    const actualTextResult = evaluate("//*[local-name() = 'text']", actual, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+    let textElements = 0;
+    while (true) {
+        const expectedText = expectedTextResult.iterateNext();
+        const actualText = actualTextResult.iterateNext();
+        if (expectedText == null && actualText == null) {
+            break;
+        }
+        else if (expectedText == null) {
+            throw new Error("More actual elements than expected");
+        }
+        else if (actualText == null) {
+            throw new Error("More expected elements than actual");
+        }
+
+        textElements++;
+        expect(actualText.textContent).to.equal(expectedText.textContent);
+    }
+    expect(textElements).to.be.greaterThan(0);
+    expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+    expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
+
+    const delta = 20; // Due to platform differences, sometimes generated sizes are (slightly) different between platforms
+    const ewidth = +(expected.documentElement.getAttribute("width") || 0);
+    const eheight = +(expected.documentElement.getAttribute("height") || 0);
+
+    const awidth = +(actual.documentElement.getAttribute("width") || 0);
+    const aheight = +(actual.documentElement.getAttribute("height") || 0);
+    expect(awidth).to.be.closeTo(ewidth, delta);
+    expect(aheight).to.be.closeTo(eheight, delta);
+  
+    return { expected, actual };
+
+
 }
 /* tslint:enable:no-null-keyword */
 
 function dispatchSequence(model: Store<glacier.ModelState>, ...actions: glacier.AllActions[]) {
     actions.forEach(action => model.dispatch(action));
+}
+
+function baseline(
+    readableName: string,
+    baselineFilename: string,
+    makeAdapters: (modelGetter: () => Store<glacier.ModelState>) => glacier.DataAdapter[],
+    makeFields: (dataSourceGetter: (count: number) => glacier.DataSourceId) => glacier.Field[],
+    makeActions: (fieldGetter: (count: number) => glacier.FieldId) => glacier.AllActions[],
+    extraValidation?: (modelGetter: () => Store<glacier.ModelState>, dataSourceGetter: (count: number) => glacier.DataSourceId, fieldGetter: (count: number) => glacier.FieldId) => Promise<any>) {
+    it(readableName, async () => {
+        const model = glacier.createModel();
+        const adapters = makeAdapters(() => model);
+        const fields = makeFields(n => adapters[n].id);
+        const fieldAction = glacier.createAddFieldsAction(fields);
+        const actions = makeActions(n => fieldAction.payload.fields[n].id);
+        dispatchSequence(model, fieldAction, ...actions);
+        const exporter = glacier.createSvgExporter(model);
+
+        for (const a of adapters) {
+            await a.updateCache();
+        }
+        const {svg, spec} = await exporter.export();
+        await baseline_internal(baselineFilename, svg, spec);
+        if (extraValidation) {
+            await extraValidation(() => model, n => adapters[n].id, n => fieldAction.payload.fields[n].id);
+        }
+        for (const a of adapters) {
+            await a.remove();
+        }
+    });
 }
 
 describe("glacier as a model", () => {
@@ -94,43 +158,31 @@ describe("glacier as a model", () => {
     });
     it("should expose an evented model");
 
-    it("should be usable as a tool to consume structured data and emit visualizations", async () => {
-        let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
-        dispatchSequence(model,
-            glacier.createAddFieldsAction(addFields),
+    baseline("should be usable as a tool to consume structured data and emit visualizations",
+        "1-structuredData",
+        (model) => [glacier.createSqlFileDataSource(model(), root`./data/CycleChain.sqlite`)],
+        (source) => [{ name: "DaysToManufacture", table: "Product", dataSource: source(0) }, { name: "ListPrice", table: "Product", dataSource: source(0) }],
+        (field) => [
             glacier.createUpdateMarkTypeAction("point"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
-        );
-        const exporter = glacier.createSvgExporter(model);
+        ]
+    );
 
-        await adapter.updateCache();
-        await baseline("1-structuredData", await exporter.export());
-        await adapter.remove();
-    });
-
-    it("should be usable to change mark type", async () => {
-        let model = glacier.createModel();
-        const adapter = glacier.createSqlFileDataSource(model, root`./data/CycleChain.sqlite`);
-        const addFields = [{ name: "DaysToManufacture", table: "Product", dataSource: adapter.id }, { name: "ListPrice", table: "Product", dataSource: adapter.id }];
-        dispatchSequence(model,
-            glacier.createAddFieldsAction(addFields),
+    baseline("should be usable to change mark type",
+        "2-marks",
+        (model) => [glacier.createSqlFileDataSource(model(), root`./data/CycleChain.sqlite`)],
+        (source) => [{ name: "DaysToManufacture", table: "Product", dataSource: source(0) }, { name: "ListPrice", table: "Product", dataSource: source(0) }],
+        (field) => [
             glacier.createUpdateMarkTypeAction("line"),
             glacier.createUpdateDescriptionAction("Test Plot"),
             glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: "DaysToManufacture", type: "quantitative" }),
             glacier.createAddChannelAction("y", { field: "ListPrice", type: "quantitative" })
-        );
-        const exporter = glacier.createSvgExporter(model);
-
-        await adapter.updateCache();
-        await baseline("2-marks", await exporter.export());
-        await adapter.remove();
-    });
+        ]
+    );
 
     it("should be usable to change size", async () => {
         let model = glacier.createModel();
@@ -147,7 +199,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("3-size", await exporter.export());
+        await baseline_internal("3-size", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -166,7 +218,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("4-encoding", await exporter.export());
+        await baseline_internal("4-encoding", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -185,7 +237,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("1-structuredData", await exporter.export()); // NOT A BUG - uses the same baseline as the first baseline
+        await baseline_internal("1-structuredData", (await exporter.export()).svg, "skip"); // NOT A BUG - uses the same baseline as the first baseline
         await adapter.remove();
     });
 
@@ -227,7 +279,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("5-Product Weight", await exporter.export());
+        await baseline_internal("5-Product Weight", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -257,7 +309,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("5-Product Weight", await exporter.export()); // NOT A BUG - uses the same baseline as the fifth baseline
+        await baseline_internal("5-Product Weight", (await exporter.export()).svg, "skip"); // NOT A BUG - uses the same baseline as the fifth baseline
         await adapter.remove();
     });
     it("should export svg to bundle", async () => {
@@ -281,7 +333,7 @@ describe("glacier as a model", () => {
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);
         const thumnailString = await loadedZip.files["thumnail.svg"].async("string");
-        await baseline("6-Exported-Thumnail", thumnailString);
+        await baseline_internal("6-Exported-Thumnail", thumnailString, "skip");
         await adapter.remove();
     });
     it("should export other files to bundle", async () => {
@@ -345,7 +397,7 @@ describe("glacier as a model", () => {
 
         await carSource.updateCache();
         await djiSource.updateCache();
-        await baseline("7-MPGvDJI", await exporter.export());
+        await baseline_internal("7-MPGvDJI", (await exporter.export()).svg, "skip");
         await carSource.remove();
         await djiSource.remove();
     });
@@ -384,7 +436,7 @@ describe("glacier as a model", () => {
 
         await carSource.updateCache();
         await djiSource.updateCache();
-        await baseline("8-MPGOver30vDJI", await exporter.export());
+        await baseline_internal("8-MPGOver30vDJI", (await exporter.export()).svg, "skip");
         await carSource.remove();
         await djiSource.remove();
     });
@@ -406,7 +458,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("9-FilteredData", await exporter.export());
+        await baseline_internal("9-FilteredData", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -426,7 +478,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("10-ORFilter", await exporter.export());
+        await baseline_internal("10-ORFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -446,7 +498,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("11-ANDFilter", await exporter.export());
+        await baseline_internal("11-ANDFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -467,7 +519,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("12-NEFilter", await exporter.export());
+        await baseline_internal("12-NEFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -488,7 +540,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("13-EQFilter", await exporter.export());
+        await baseline_internal("13-EQFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -523,9 +575,40 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline("14-GTELTEFilter", await exporter.export());
+        await baseline_internal("14-GTELTEFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
+
+    baseline("should enable consumers to load data from CSV",
+        "15-DJI",
+        (model) => [glacier.createCSVDataSource(model(), fs.readFileSync(root`./data/dji.csv`).toString())],
+        (source) => [
+            { name: "Date", dataSource: source(0) }, { name: "High", dataSource: source(0) }
+        ],
+        (field) => [
+            glacier.createUpdateMarkTypeAction("line"),
+            glacier.createUpdateDescriptionAction("DJI v Time"),
+            glacier.createUpdateSizeAction(255, 264),
+            glacier.createAddChannelAction("x", { field: field(0), type: "temporal", axis: { title: "Date" } }),
+            glacier.createAddChannelAction("y", { field: field(1), type: "quantitative", axis: { title: "Dow Jones Indstrial Average" }, scale: { type: "log" } })
+        ]
+    );
+
+    baseline("should enable consumers to load data from JSON",
+        "16-MPG",
+        (model) => [glacier.createJSONDataSource(model(), fs.readFileSync(root`./data/cars.json`).toString())],
+        (source) => [
+            { name: "Year", dataSource: source(0) }, { name: "Miles_per_Gallon", dataSource: source(0) }
+        ],
+        (field) => [
+            glacier.createUpdateMarkTypeAction("area"),
+            glacier.createUpdateDescriptionAction("MPG vs Time"),
+            glacier.createUpdateSizeAction(135, 400),
+            glacier.createAddChannelAction("x", { field: field(0), type: "temporal", axis: { title: "Year", values: [{year: 1970}, {year: 1980}] }, timeUnit: "year" }),
+            glacier.createAddChannelAction("y", { field: field(1), type: "quantitative", axis: { title: "MPG" }, aggregate: "min" }),
+            glacier.createAddChannelAction("y2", { field: field(1), type: "quantitative", aggregate: "max" })
+        ]
+    );
 
     it("should be able to add default fields to sql adapter", async () => {
         let model = glacier.createModel();

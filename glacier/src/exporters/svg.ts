@@ -12,9 +12,9 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
     const updater = ((() => {
         // On update...
         // store.getState()
-    }) as Exporter<string>);
+    }) as Exporter<{svg: string, spec: any}>);
     updater.export = async () => {
-        return await new Promise<string>((resolve, reject) => {
+        return await new Promise<{svg: string, spec: any}>((resolve, reject) => {
             const {spec: compiled} = vl.compile(compileState(store.getState()));
             vega.parse.spec(compiled, chart => {
                 let result: string | undefined;
@@ -24,7 +24,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 catch (e) {
                     return reject(e);
                 }
-                resolve(result);
+                resolve({svg: result, spec});
             });
         });
     };

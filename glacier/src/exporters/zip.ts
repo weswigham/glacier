@@ -13,7 +13,7 @@ export function createZipExporter(store: redux.Store<ModelState>, libary: {[idex
         const svgExporter = createSvgExporter(store);
         const zip = new JSZip();
         zip.file("state.json", stateString);
-        zip.file("thumnail.svg", await svgExporter.export());
+        zip.file("thumnail.svg", (await svgExporter.export()).svg);
         const keys = Object.keys(libary);
         for ( const key of keys ) {
             zip.file(key, libary[key]);
