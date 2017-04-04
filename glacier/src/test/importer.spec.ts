@@ -73,7 +73,7 @@ async function baseline_internal(name: string, actualString: string, actualSpec:
     if (actualSpec !== "skip") {
         if (!spec) throw new Error("No baseline spec loaded!");
         // First, verify spec equality
-        expect(actualSpec).to.deep.equal(spec);
+        expect(JSON.parse(JSON.stringify(actualSpec))).to.deep.equal(spec); // Stringify then parse to strip `undefined` valued keys
     }
 
     // Then loosely verify svg equality
