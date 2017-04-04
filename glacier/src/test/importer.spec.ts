@@ -59,7 +59,13 @@ function baseline(name: string, actualString: string): Promise<{ expected: Docum
                         }
 
                         textElements++;
-                        expect(actualText.textContent).to.equal(expectedText.textContent);
+                        try {
+                            expect(actualText.textContent).to.equal(expectedText.textContent);
+                        }
+                        catch(e) {
+                            console.log(actualString);
+                            throw e;
+                        }
                     }
                     expect(textElements).to.be.greaterThan(0);
                     expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
