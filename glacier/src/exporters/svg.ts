@@ -15,7 +15,8 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
     }) as Exporter<{svg: string, spec: any}>);
     updater.export = async () => {
         return await new Promise<{svg: string, spec: any}>((resolve, reject) => {
-            const {spec: compiled} = vl.compile(compileState(store.getState()));
+            const spec = compileState(store.getState());
+            const {spec: compiled} = vl.compile();
             vega.parse.spec(compiled, chart => {
                 let result: string | undefined;
                 try {
