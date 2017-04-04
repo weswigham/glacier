@@ -82,7 +82,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
     const updater = ((() => {
         // On update...
         // store.getState()
-    }) as Exporter<string>);
+    }) as Exporter<{svg: string, spec: any}>);
     updater.export = async () => {
         const {sources, marks, fields: fieldTable, transforms, channels} = store.getState();
         const fields = Object.keys(fieldTable).map(f => fieldTable[+f]);
@@ -180,7 +180,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
             return `WHERE ${transformFilterToQuery(filter)}`;
         }
 
-        return await new Promise<string>((resolve, reject) => {
+        return await new Promise<{spec: any, svg: string}>((resolve, reject) => {
             const {spec: compiled} = vl.compile(spec);
             vega.parse.spec(compiled, chart => {
                 let result: string | undefined;
@@ -190,11 +190,7 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 catch (e) {
                     return reject(e);
                 }
-                // This is what happens when you fail to design for test
-                //  small hacks to extricate extra data to verify during test to make debugging easier
-                let wrapped = new String(result);
-                (wrapped as any).spec = spec;
-                resolve(wrapped as string);
+                resolve({svg: result, spec});
             });
         });
     };

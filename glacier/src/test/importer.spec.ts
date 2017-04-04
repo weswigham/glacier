@@ -132,8 +132,8 @@ function baseline(
         for (const a of adapters) {
             await a.updateCache();
         }
-        const result = await exporter.export();
-        await baseline_internal(baselineFilename, result, (result as any).spec);
+        const {svg, spec} = await exporter.export();
+        await baseline_internal(baselineFilename, svg, spec);
         if (extraValidation) {
             await extraValidation(() => model, n => adapters[n].id, n => fieldAction.payload.fields[n].id);
         }
@@ -190,7 +190,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("3-size", await exporter.export(), "skip");
+        await baseline_internal("3-size", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -209,7 +209,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("4-encoding", await exporter.export(), "skip");
+        await baseline_internal("4-encoding", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -228,7 +228,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("1-structuredData", await exporter.export(), "skip"); // NOT A BUG - uses the same baseline as the first baseline
+        await baseline_internal("1-structuredData", (await exporter.export()).svg, "skip"); // NOT A BUG - uses the same baseline as the first baseline
         await adapter.remove();
     });
 
@@ -270,7 +270,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("5-Product Weight", await exporter.export(), "skip");
+        await baseline_internal("5-Product Weight", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -300,7 +300,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("5-Product Weight", await exporter.export(), "skip"); // NOT A BUG - uses the same baseline as the fifth baseline
+        await baseline_internal("5-Product Weight", (await exporter.export()).svg, "skip"); // NOT A BUG - uses the same baseline as the fifth baseline
         await adapter.remove();
     });
     it("should export svg to bundle", async () => {
@@ -388,7 +388,7 @@ describe("glacier as a model", () => {
 
         await carSource.updateCache();
         await djiSource.updateCache();
-        await baseline_internal("7-MPGvDJI", await exporter.export(), "skip");
+        await baseline_internal("7-MPGvDJI", (await exporter.export()).svg, "skip");
         await carSource.remove();
         await djiSource.remove();
     });
@@ -427,7 +427,7 @@ describe("glacier as a model", () => {
 
         await carSource.updateCache();
         await djiSource.updateCache();
-        await baseline_internal("8-MPGOver30vDJI", await exporter.export(), "skip");
+        await baseline_internal("8-MPGOver30vDJI", (await exporter.export()).svg, "skip");
         await carSource.remove();
         await djiSource.remove();
     });
@@ -449,7 +449,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("9-FilteredData", await exporter.export(), "skip");
+        await baseline_internal("9-FilteredData", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -469,7 +469,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("10-ORFilter", await exporter.export(), "skip");
+        await baseline_internal("10-ORFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -489,7 +489,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("11-ANDFilter", await exporter.export(), "skip");
+        await baseline_internal("11-ANDFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -510,7 +510,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("12-NEFilter", await exporter.export(), "skip");
+        await baseline_internal("12-NEFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -531,7 +531,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("13-EQFilter", await exporter.export(), "skip");
+        await baseline_internal("13-EQFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -566,7 +566,7 @@ describe("glacier as a model", () => {
         const exporter = glacier.createSvgExporter(model);
 
         await adapter.updateCache();
-        await baseline_internal("14-GTELTEFilter", await exporter.export(), "skip");
+        await baseline_internal("14-GTELTEFilter", (await exporter.export()).svg, "skip");
         await adapter.remove();
     });
 
@@ -594,7 +594,6 @@ describe("glacier as a model", () => {
         (field) => [
             glacier.createUpdateMarkTypeAction("area"),
             glacier.createUpdateDescriptionAction("MPG vs Time"),
-            glacier.createUpdateSizeAction(255, 264),
             glacier.createAddChannelAction("x", { field: field(0), type: "temporal", axis: { title: "Year", labels: false } }),
             glacier.createAddChannelAction("y", { field: field(1), type: "quantitative", axis: { title: "MPG" }, aggregate: "min" }),
             glacier.createAddChannelAction("y2", { field: field(1), type: "quantitative", axis: { title: "MPG" }, aggregate: "max" })
