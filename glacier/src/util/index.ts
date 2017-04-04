@@ -12,3 +12,9 @@ export function Enum<X extends string>(...x: X[]): {[K in X]: K } {
     }
     return o;
 }
+
+export function poisonPill(reason: string) {
+    return function() {
+        throw new Error(`Function has been poisoned. Reason: ${reason}`);
+    }
+}
