@@ -956,5 +956,9 @@
                 "type": "log"
             }
         }
-    }
+    },
+    "mark": "line",
+    "description": "DJI v Time",
+    "width": 264,
+    "height": 255
 }

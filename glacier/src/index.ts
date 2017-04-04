@@ -1,5 +1,6 @@
 export * from "./model";
 export * from "./actions";
+export * from "./mapper";
 
 import {createStore, combineReducers, Store} from "redux";
 import * as reducers from "./reducers";

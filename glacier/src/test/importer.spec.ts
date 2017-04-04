@@ -103,6 +103,15 @@ async function baseline_internal(name: string, actualString: string, actualSpec:
     expect(evaluate("//g", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//g", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
     expect(evaluate("//*", actual, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength).to.equal(evaluate("//*", expected, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE).snapshotLength);
 
+    const delta = 20; // Due to platform differences, sometimes generated sizes are (slightly) different between platforms
+    const ewidth = +(expected.documentElement.getAttribute("width") || 0);
+    const eheight = +(expected.documentElement.getAttribute("height") || 0);
+
+    const awidth = +(actual.documentElement.getAttribute("width") || 0);
+    const aheight = +(actual.documentElement.getAttribute("height") || 0);
+    expect(awidth).to.be.closeTo(ewidth, delta);
+    expect(aheight).to.be.closeTo(eheight, delta);
+
     return { expected, actual };
 
 
