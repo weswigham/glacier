@@ -2,7 +2,7 @@ const handlebars = require("handlebars");
 const fileContents = require("fs").readFileSync("docs/index.html.handelbars", "utf8");
 const result = handlebars.compile(fileContents);
 const date = new Date();
-const localFiles = require("fs").readdirSync("docs/baselines/local");
+const localFiles = require("fs").readdirSync("docs/baselines/local").filter(f => f.endsWith(".svg"));
 localFiles.shift();
 localFiles.sort();
 const data = {
