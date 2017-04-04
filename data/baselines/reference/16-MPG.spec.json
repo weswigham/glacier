@@ -4474,8 +4474,7 @@
             "field": "Year",
             "type": "temporal",
             "axis": {
-                "title": "Year",
-                "labels": false
+                "title": "Year"
             }
         },
         "y": {
@@ -4489,9 +4488,6 @@
         "y2": {
             "field": "Miles_per_Gallon",
             "type": "quantitative",
-            "axis": {
-                "title": "MPG"
-            },
             "aggregate": "max"
         }
     }
