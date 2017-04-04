@@ -190,7 +190,11 @@ export function createSvgExporter(store: redux.Store<ModelState>) {
                 catch (e) {
                     return reject(e);
                 }
-                resolve(result);
+                // This is what happens when you fail to design for test
+                //  small hacks to extricate extra data to verify during test to make debugging easier
+                let wrapped = new String(result);
+                (wrapped as any).spec = spec;
+                resolve(wrapped as string);
             });
         });
     };
