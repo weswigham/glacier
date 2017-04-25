@@ -44,9 +44,9 @@ jspm_packages
 *.tgz
 
 # local test build output for glacier
-glacier/dist/local
-glacier/dist/**/*.js
-glacier/dist/**/*.d.ts
+dist/local
+dist/**/*.js
+dist/**/*.d.ts
 data/baselines/local
 .DS_Store
 

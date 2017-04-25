@@ -16,7 +16,7 @@ function root(parts: TemplateStringsArray, ...inserts: string[]) {
         result += inserts[i];
     }
     result += parts[parts.length - 1];
-    return resolve(__dirname, "../../../", result);
+    return resolve(__dirname, "../../", result);
 }
 
 describe("A smoke test suite", () => {
@@ -326,7 +326,7 @@ describe("glacier as a model", () => {
             glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
 
-        const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
+        const glacierLib = fs.readFileSync(root`./dist/local/glacier.js`);
         const indexHtml = fs.readFileSync(root`./data/index.html`);
         const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml });
         await adapter.updateCache();
@@ -350,7 +350,7 @@ describe("glacier as a model", () => {
             glacier.createAddChannelAction("y", { field: "Weight", type: "quantitative" })
         );
 
-        const glacierLib = fs.readFileSync(root`./glacier/dist/local/glacier.js`);
+        const glacierLib = fs.readFileSync(root`./dist/local/glacier.js`);
         const indexHtml = fs.readFileSync(root`./data/index.html`);
         const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml });
         await adapter.updateCache();

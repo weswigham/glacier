@@ -7,14 +7,11 @@ branches:
   only:
   - master
 before_install:
-- chmod +x ./scripts/travis.sh
 - chmod +x ./scripts/post-build.sh
-script: "./scripts/travis.sh"
-test: 
 cache:
   directories:
-  - glacier/node_modules
-  - gluon/node_modules
+  - node_modules
+  - src/node_modules
 notifications:
   email:
     on_success: never
