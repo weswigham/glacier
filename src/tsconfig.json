@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        /*"noImplicitAny": true,*/
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noFallthroughCasesInSwitch": true,
+        "preserveConstEnums": true,
+        "removeComments": false,
+        "lib": ["es6", "es2015.promise", "dom"],
+        "types": [],
+        "declaration": true
+    },
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "./test/**/*.ts",
+        "./node_modules/**"
+    ]
+}
