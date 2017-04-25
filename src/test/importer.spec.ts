@@ -16,7 +16,7 @@ function root(parts: TemplateStringsArray, ...inserts: string[]) {
         result += inserts[i];
     }
     result += parts[parts.length - 1];
-    return resolve(__dirname, "../../../", result);
+    return resolve(__dirname, "../../", result);
 }
 
 describe("A smoke test suite", () => {
