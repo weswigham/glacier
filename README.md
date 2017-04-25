@@ -25,7 +25,7 @@ Example
 In the general case, this library should be usable like the following:
 ```ts
 import {createModel, createSvgExporter, createSqlDataSource} from "glacier";
-cosnt model = createModel();
+const model = createModel();
 const exporter = createSvgExporter(model);
 const source = createSqlDataSource(model, "../path/to/db");
 model.subscribe(state => console.log(exporter.export()));
