@@ -13,8 +13,8 @@ script: "./scripts/travis.sh"
 test: 
 cache:
   directories:
-  - glacier/node_modules
-  - gluon/node_modules
+  - node_modules
+  - src/node_modules
 notifications:
   email:
     on_success: never
