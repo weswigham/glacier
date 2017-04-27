@@ -43,9 +43,9 @@ model.subscribe(state => console.log(exporter.export()));
 Design
 ======
 The library is designed as a store which you can dispatch actions to, and hook up adapters (which can dispatch actions) and exporters (which can listen on state changes) on.
-  `src/actions` - actions creators - this is where functions which produce actions which can be dispatched to the store reside
-	`src/reducers` - state management - this is where actions become new parts of the state; specific reducers are responsible for specific actions which update specific portions of the state
-	`src/model` - contains interfaces that describe the shape of state
-	`src/mapper` - logic which maps our internal state into a Vega-Lite specification object
-	`src/adapters` - contains objects and interfaces specifying how to import data into the state (CSV, JSON, SQL, etc)
-	`src/exporters` - contains objects and interfaces specify how to export a state into something useful (SVG, ZIP, etc)
+ * `src/actions` - actions creators - this is where functions which produce actions which can be dispatched to the store reside
+ * `src/reducers` - state management - this is where actions become new parts of the state; specific reducers are responsible for specific actions which update specific portions of the state
+ * `src/model` - contains interfaces that describe the shape of state
+ * `src/mapper` - logic which maps our internal state into a Vega-Lite specification object
+ * `src/adapters` - contains objects and interfaces specifying how to import data into the state (CSV, JSON, SQL, etc)
+ * `src/exporters` - contains objects and interfaces specify how to export a state into something useful (SVG, ZIP, etc)
