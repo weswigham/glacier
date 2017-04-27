@@ -7,7 +7,7 @@ Prerequisites
 =====
 
 
-* Node.js 6.*.*/7.*.*
+* Node.js 6.X.X/7.X.X
 * Git
 * Node Canvas Prerequisites ( https://github.com/Automattic/node-canvas )
 
