@@ -2,12 +2,22 @@
 
 [![Build Status](https://travis-ci.org/glimpseio/glacier.png)](https://travis-ci.org/glimpseio/glacier)
 
+
+Prerequisites
+=====
+
+
+* Node.js 6.*.*/7.*.*
+* Git
+* Node Canvas Prerequisites ( https://github.com/Automattic/node-canvas )
+
 Dev Setup
 =====
 
-1. Install node canvas dependencies as appropriate for [your platform](https://github.com/Automattic/node-canvas/wiki). We use it to generate vizualizations in test.
+
+1. Install node canvas dependencies as appropriate for [your platform](https://github.com/Automattic/node-canvas/wiki). We use it to generate visualizations in test.
 2. `cd` into this folder
-3. `npm install` to get our dependcies - both build time and run time
+3. `npm install` to get our dependencies - both build time and run time
 4. (optional) `npm install -g gulp-cli` to install `gulp` on your path. If you don't, you will not be able to use any `gulp` commands. Use `gulp help` for a list of the available commands for this project.
 
 If using `vscode` you should install the `tslint` extension to get nice lint warnings as you edit.
@@ -25,9 +35,18 @@ Release
 1. `gulp build-release` Builds a minified copy of the repository
 
 
+
+Common Build Problems
+=====
+
+
+* During the development most of the problems with the build happen with the native dependencies.  Specifically node canvas and AlaSQL.  So make sure that all of the native dependencies are working.
+* Sometimes deleting the node_modules folder and `npm installing` those dependencies sometimes fixes the build.
+
+
 Debugging
 =========
-The project is easiest to debug while running tests within `vscode`. Just add a `vscode` `launch.json` (inside the `.vscode` folder) similar to [this one](https://gist.github.com/weswigham/8b6ddfcb99daa85e095fe1fe82ecd8de), and choose `'Launch'` on the debugging pane. 
+The project is easiest to debug while running tests within `vscode`. Just add a `vscode` `launch.json` (inside the `.vscode` folder) similar to [this one](https://gist.github.com/weswigham/8b6ddfcb99daa85e095fe1fe82ecd8de), and choose `'Launch'` on the debugging pane.
 
 Example
 =======
@@ -49,3 +68,4 @@ The library is designed as a store which you can dispatch actions to, and hook u
  * `src/mapper` - logic which maps our internal state into a Vega-Lite specification object
  * `src/adapters` - contains objects and interfaces specifying how to import data into the state (CSV, JSON, SQL, etc)
  * `src/exporters` - contains objects and interfaces specify how to export a state into something useful (SVG, ZIP, etc)
+
