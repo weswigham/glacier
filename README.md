@@ -27,7 +27,7 @@ Release
 
 Debugging
 =========
-The project is easiest to debug while running tests within `vscode`. Just add a `vscode` `launch.json` similar to [this one](https://gist.github.com/weswigham/8b6ddfcb99daa85e095fe1fe82ecd8de), and choose `'Launch'` on the debugging pane. 
+The project is easiest to debug while running tests within `vscode`. Just add a `vscode` `launch.json` (inside the `.vscode` folder) similar to [this one](https://gist.github.com/weswigham/8b6ddfcb99daa85e095fe1fe82ecd8de), and choose `'Launch'` on the debugging pane. 
 
 Example
 =======
