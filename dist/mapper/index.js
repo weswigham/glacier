@@ -22,7 +22,7 @@ function remapFieldsToNames(channels, fields) {
         var ch = channels[key];
         var replacement = undefined;
         if (ch) {
-            if (ch.field) {
+            if (typeof ch.field !== "undefined") {
                 var f = ch.field;
                 if (typeof f === "number") {
                     replacement = __assign({}, ch, { field: lookupName(f, fields) });
@@ -41,7 +41,7 @@ function remapFieldsToJoinNames(channels, fields) {
         var ch = channels[key];
         var replacement = undefined;
         if (ch) {
-            if (ch.field) {
+            if (typeof ch.field !== "undefined") {
                 var f = ch.field;
                 if (typeof f === "number") {
                     replacement = __assign({}, ch, { field: lookupName(f, fields) + "_" + f });
