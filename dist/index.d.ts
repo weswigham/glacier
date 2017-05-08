@@ -3,6 +3,8 @@ export * from "./actions";
 export * from "./mapper";
 import { Store } from "redux";
 import { ModelState } from "./model";
+import { AllActions } from "./actions";
+export declare const reducer: (state: ModelState, action: AllActions) => ModelState;
 export declare function createModel(): Store<ModelState>;
 export * from "./adapters";
 export * from "./exporters";

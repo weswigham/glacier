@@ -7,9 +7,10 @@ __export(require("./model"));
 __export(require("./actions"));
 __export(require("./mapper"));
 var redux_1 = require("redux");
-var reducers = require("./reducers");
+var allReducers = require("./reducers");
+exports.reducer = redux_1.combineReducers(allReducers);
 function createModel() {
-    return redux_1.createStore(redux_1.combineReducers(reducers));
+    return redux_1.createStore(exports.reducer);
 }
 exports.createModel = createModel;
 __export(require("./adapters"));

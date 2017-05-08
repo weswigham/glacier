@@ -122,6 +122,8 @@ function dispatchSequence(model: Store<glacier.ModelState>, ...actions: glacier.
     actions.forEach(action => model.dispatch(action));
 }
 
+function identity<T>(a: T) { return a; }
+
 function baseline(
     readableName: string,
     baselineFilename: string,
@@ -136,7 +138,7 @@ function baseline(
         const fieldAction = glacier.createAddFieldsAction(fields);
         const actions = makeActions(n => fieldAction.payload.fields[n].id);
         dispatchSequence(model, fieldAction, ...actions);
-        const exporter = glacier.createSvgExporter(model);
+        const exporter = glacier.createSvgExporter(model, identity);
 
         for (const a of adapters) {
             await a.updateCache();
@@ -328,7 +330,7 @@ describe("glacier as a model", () => {
 
         const glacierLib = fs.readFileSync(root`./dist/local/glacier.js`);
         const indexHtml = fs.readFileSync(root`./data/index.html`);
-        const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml });
+        const exportedBundle = glacier.createZipExporter(model, { "glacier.js": glacierLib, "index.html": indexHtml }, identity);
         await adapter.updateCache();
         const zip = await exportedBundle.export();
         const loadedZip = await new jszip().loadAsync(zip);

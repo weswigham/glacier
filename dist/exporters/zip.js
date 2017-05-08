@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -37,19 +37,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var JSZip = require("jszip");
 var _1 = require("./");
-function createZipExporter(store, libary) {
+function createZipExporter(store, library, selectOrOnChange, onChange) {
     var _this = this;
+    var select = (function (s) { return s; });
+    if (onChange) {
+        select = selectOrOnChange;
+    }
+    else if (selectOrOnChange) {
+        onChange = selectOrOnChange;
+    }
     var updater = (function () {
-        // On update...
-        // store.getState
+        if (onChange) {
+            onChange(updater);
+        }
     });
     updater.export = function () { return __awaiter(_this, void 0, void 0, function () {
         var stateString, svgExporter, zip, _a, _b, _c, keys, _i, keys_1, key;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    stateString = JSON.stringify(store.getState());
-                    svgExporter = _1.createSvgExporter(store);
+                    stateString = JSON.stringify(select(store.getState()));
+                    svgExporter = _1.createSvgExporter(store, select);
                     zip = new JSZip();
                     zip.file("state.json", stateString);
                     _b = (_a = zip).file;
@@ -57,17 +65,18 @@ function createZipExporter(store, libary) {
                     return [4 /*yield*/, svgExporter.export()];
                 case 1:
                     _b.apply(_a, _c.concat([(_d.sent()).svg]));
-                    keys = Object.keys(libary);
+                    svgExporter.dispose();
+                    keys = Object.keys(library);
                     for (_i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
                         key = keys_1[_i];
-                        zip.file(key, libary[key]);
+                        zip.file(key, library[key]);
                     }
                     return [4 /*yield*/, zip.generateAsync({ type: "nodebuffer" })];
                 case 2: return [2 /*return*/, _d.sent()];
             }
         });
     }); };
-    store.subscribe(updater);
+    updater.dispose = store.subscribe(updater);
     return updater;
 }
 exports.createZipExporter = createZipExporter;

@@ -8,8 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -38,17 +38,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var vl = require("vega-lite");
 var vega = require("vega");
 var mapper_1 = require("../mapper");
-function createSvgExporter(store) {
+function createSvgExporter(store, selectOrOnChange, onChange) {
     var _this = this;
+    var select = (function (s) { return s; });
+    if (onChange) {
+        select = selectOrOnChange;
+    }
+    else if (selectOrOnChange) {
+        onChange = selectOrOnChange;
+    }
     var updater = (function () {
-        // On update...
-        // store.getState()
+        if (onChange) {
+            onChange(updater);
+        }
     });
     updater.export = function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
-                        var spec = mapper_1.compileState(store.getState());
+                        var spec = mapper_1.compileState(select(store.getState()));
                         var compiled = vl.compile(spec).spec;
                         vega.parse.spec(compiled, function (chart) {
                             var result;
@@ -65,7 +73,7 @@ function createSvgExporter(store) {
             }
         });
     }); };
-    store.subscribe(updater);
+    updater.dispose = store.subscribe(updater);
     return updater;
 }
 exports.createSvgExporter = createSvgExporter;

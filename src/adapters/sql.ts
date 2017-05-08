@@ -6,10 +6,13 @@ import { createAddDataSourceAction, createUpdateDataCacheAction, createRemoveDat
 
 
 const dummy = (true as boolean as false) || knex({}); // Makes the return type of the function available for reference without calling it
-export class SqlDataSourceAdapter implements DataAdapter {
+export class SqlDataSourceAdapter<T> implements DataAdapter {
     private _conn: typeof dummy;
     id: DataSourceId;
-    constructor(private store: redux.Store<ModelState>, filename: string) {
+
+    constructor(store: redux.Store<ModelState>, filename: string)
+    constructor(store: redux.Store<T>, filename: string, _selector: (s: T) => ModelState)
+    constructor(private store: redux.Store<T>, filename: string, private _selector: (s: T) => ModelState = ((s: any) => s)) {
         const action = createAddDataSourceAction("sqlite-file", { path: filename }, {}, this);
         this.id = action.payload.id;
         const connection = knex({
@@ -69,7 +72,7 @@ export class SqlDataSourceAdapter implements DataAdapter {
     }
     updateCache() {
         this.assertConnection();
-        let state = this.store.getState();
+        let state = this._selector(this.store.getState());
         let fields: { [index: string]: string[] } = Object.keys(state.fields).map(k => state.fields[+k]).filter(item =>
             item.dataSource === this.id
         )

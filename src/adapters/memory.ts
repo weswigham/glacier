@@ -1,5 +1,5 @@
 import redux = require("redux");
-import { ModelState, DataSourceId } from "../";
+import { DataSourceId } from "../";
 import { DataAdapter } from "./";
 import { createAddDataSourceAction } from "../actions";
 import { SinglyLoadedMemoryDataSource } from "./single-memory-load-base";
@@ -14,7 +14,7 @@ class InternalMemoryDataSource extends SinglyLoadedMemoryDataSource {
     }
 }
 
-export function createMemoryDataSource(store: redux.Store<ModelState>): MemoryDataSourceAdapter {
+export function createMemoryDataSource(store: redux.Store<{}>): MemoryDataSourceAdapter {
     const base = new InternalMemoryDataSource([], store);
     const func = (((data: any[]) => {
         base.setData(data);

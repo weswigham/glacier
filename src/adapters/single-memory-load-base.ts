@@ -1,11 +1,11 @@
 import redux = require("redux");
-import { ModelState, Field, DataSourceId } from "../";
+import { Field, DataSourceId } from "../";
 import { DataAdapter } from "./";
 import { createUpdateDataCacheAction, createRemoveDataSourceAction, createAddFieldsAction } from "../actions";
 import { poisonPill } from "../util";
 
 export class SinglyLoadedMemoryDataSource implements DataAdapter {
-    constructor(protected storedData: any[], protected store: redux.Store<ModelState>) {}
+    constructor(protected storedData: any[], protected store: redux.Store<{}>) {}
     async defaultFieldSelection(selectNumber = 2) {
         if (this.storedData.length < 1) throw new Error("Cannot select fields with a data source that has 0 tables");
         if (selectNumber === undefined) throw new Error("Field selection number cannot be null or undefined");
