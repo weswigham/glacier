@@ -10,6 +10,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var alasql = require("alasql");
 function lookupName(f, fields) {
+    if (!fields[f])
+        throw new Error("Field with ID " + f + " does not exist!");
     return fields[f].name;
 }
 function remapFieldsToNames(channels, fields) {
@@ -64,22 +66,26 @@ function remapFieldsToJoinNames(channels, fields) {
     }
     return newState;
 }
+// Adding defaults allows us to always generate a spec vega will accept
+var defaults = {
+    mark: "bar"
+};
 function compileState(_a) {
     var sources = _a.sources, marks = _a.marks, fieldTable = _a.fields, transforms = _a.transforms, channels = _a.channels;
     var fields = Object.keys(fieldTable).map(function (f) { return fieldTable[+f]; });
     // Simple case: all selected fields from same data source
     var dataSources = Object.keys(fields.reduce(function (state, f) { return (state[f.dataSource] = true, state); }, {}));
-    if (dataSources.length === 1 && !transforms.post_filter) {
-        return __assign({ data: {
-                values: fields.map(function (f) { return sources[f.dataSource].cache; })[0]
+    if (fields.length === 0 || dataSources.length === 0 || (dataSources.length === 1 && !transforms.post_filter)) {
+        return __assign({}, defaults, { data: {
+                values: fields.map(function (f) { return sources[f.dataSource].cache; })[0] || []
             }, encoding: remapFieldsToNames(channels, fieldTable) }, marks);
     }
     else {
         var query = generateQuery();
         var tables = dataSources.map(function (d) { return sources[+d].cache; });
         tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
-        return __assign({ data: {
-                values: alasql(query, tables)
+        return __assign({}, defaults, { data: {
+                values: alasql(query, tables) || []
             }, encoding: remapFieldsToJoinNames(channels, fieldTable) }, marks);
     }
     // join across all utilized data sources using the field information provided
