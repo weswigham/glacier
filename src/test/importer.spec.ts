@@ -628,4 +628,16 @@ describe("glacier as a model", () => {
         let state = model.getState();
         expect(Object.keys(state.fields).length).to.equal(2);
     });
+
+    it("should be able to handle calls to export before fields are added", async () => {
+        const model = glacier.createModel();
+        glacier.createMemoryDataSource(model)(require(root`./data/cars.json`));
+        const e = glacier.createSvgExporter(model);
+        const r1 = await e.export();
+        expect(r1).to.exist;
+        model.dispatch(glacier.createUpdateSizeAction(200, 200));
+        const r2 = await e.export();
+        expect(r2).to.exist;
+        expect(r2.spec.height).to.equal(200);
+    });
 });

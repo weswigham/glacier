@@ -1,8 +1,6 @@
 import alasql = require("alasql");
-import * as vl from "vega-lite";
 import {
     ModelState,
-    MarkState,
     Encoding,
     ChannelState,
     FieldId,
@@ -15,6 +13,7 @@ import {
 } from "../";
 
 function lookupName(f: FieldId, fields: FieldState): string {
+    if (!fields[f]) throw new Error(`Field with ID ${f} does not exist!`);
     return fields[f].name;
 }
 
@@ -70,30 +69,37 @@ function remapFieldsToJoinNames(channels: ChannelState, fields: FieldState): Cha
     return newState;
 }
 
+// Adding defaults allows us to always generate a spec vega will accept
+const defaults = {
+    mark: "bar"
+};
+
 export function compileState({sources, marks, fields: fieldTable, transforms, channels}: ModelState) {
     const fields = Object.keys(fieldTable).map(f => fieldTable[+f]);
     // Simple case: all selected fields from same data source
     const dataSources = Object.keys(fields.reduce((state, f) => (state[f.dataSource] = true, state), {} as { [index: number]: boolean }));
-    if (dataSources.length === 1 && !transforms.post_filter) { // Only use fast path if there's no required joins and no filters
+    if (fields.length === 0 || dataSources.length === 0 || (dataSources.length === 1 && !transforms.post_filter)) { // Only use fast path if there's no required joins and no filters
         return {
+            ...defaults,
             data: {
-                values: fields.map(f => sources[f.dataSource].cache)[0]
+                values: fields.map(f => sources[f.dataSource].cache)[0] || []
             },
             encoding: remapFieldsToNames(channels, fieldTable),
             ...marks
-        }
+        };
     }
     else {
         const query = generateQuery();
         const tables = dataSources.map(d => sources[+d].cache);
         tables.unshift(tables.pop()); // Move last element to the front, since we likewise use the last data source first in our query
         return {
+            ...defaults,
             data: {
-                values: alasql(query, tables)
+                values: alasql(query, tables) || []
             },
             encoding: remapFieldsToJoinNames(channels, fieldTable),
             ...marks
-        }
+        };
     }
 
     // join across all utilized data sources using the field information provided
