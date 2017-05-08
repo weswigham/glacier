@@ -24,7 +24,7 @@ function remapFieldsToNames(channels: ChannelState, fields: FieldState): Channel
         const ch = channels[key];
         let replacement: ChannelDef | undefined = undefined;
         if (ch) {
-            if (ch.field) {
+            if (typeof ch.field !== "undefined") {
                 const f = ch.field;
                 if (typeof f === "number") {
                     replacement = { ...ch, field: lookupName(f, fields) } as ChannelDef;
@@ -43,7 +43,7 @@ function remapFieldsToJoinNames(channels: ChannelState, fields: FieldState): Cha
         const ch = channels[key];
         let replacement: ChannelDef | undefined = undefined;
         if (ch) {
-            if (ch.field) {
+            if (typeof ch.field !== "undefined") {
                 const f = ch.field;
                 if (typeof f === "number") {
                     replacement = { ...ch, field: `${lookupName(f, fields)}_${f}` } as ChannelDef;
