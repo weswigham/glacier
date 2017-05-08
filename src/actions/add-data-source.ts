@@ -8,7 +8,7 @@ export type AddMemoryDataSourceAction<S> = AddDataSourceAction<"memory", {}, S>;
 
 let id = 0;
 
-export function createAddDataSourceAction<C>(type: "sqlite-file", metadata: {path: string}, cache: C, adapter: SqlDataSourceAdapter): AddSqliteFileDataSourceAction<C>;
+export function createAddDataSourceAction<C, S>(type: "sqlite-file", metadata: {path: string}, cache: C, adapter: SqlDataSourceAdapter<S>): AddSqliteFileDataSourceAction<C>;
 export function createAddDataSourceAction<C>(type: "memory", metadata: {}, cache: C, adapter: MemoryDataSourceAdapter): AddMemoryDataSourceAction<C>;
 export function createAddDataSourceAction<S extends string, M, C>(type: S, metadata: M, cache: C, adapter: DataAdapter): AddDataSourceAction<S, M, C>;
 export function createAddDataSourceAction<S extends string, M, C>(type: S, metadata: M, cache: C, adapter: DataAdapter): AddDataSourceAction<S, M, C> {

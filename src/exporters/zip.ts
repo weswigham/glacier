@@ -9,20 +9,20 @@ export function createZipExporter(
     store: redux.Store<ModelState>,
     library: {[index: string]: Buffer},
     onChange?: (exp: ZipExporter) => void
-)
+): ZipExporter;
 export function createZipExporter<T>(
     store: redux.Store<T>,
     library: {[index: string]: Buffer},
     select: (state: T) => ModelState,
     onChange?: (exp: ZipExporter) => void
-)
+): ZipExporter;
 export function createZipExporter<T>(
     store: redux.Store<T>,
     library: {[index: string]: Buffer},
     selectOrOnChange?: ((state: T) => ModelState) | ((exp: ZipExporter) => void),
     onChange?: (exp: ZipExporter) => void
-) {
-    let select = (s => s);
+): ZipExporter {
+    let select = ((s: any) => s);
     if (onChange) {
         select = selectOrOnChange as (state: T) => ModelState;
     }

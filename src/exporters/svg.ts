@@ -12,18 +12,18 @@ export type SVGExporter = Exporter<{svg: string, spec: any}>;
 export function createSvgExporter(
     store: redux.Store<ModelState>,
     onChange?: (exp: SVGExporter) => void
-)
+): SVGExporter;
 export function createSvgExporter<T>(
     store: redux.Store<T>,
     select: (state: T) => ModelState,
     onChange?: (exp: SVGExporter) => void
-)
+): SVGExporter;
 export function createSvgExporter<T>(
     store: redux.Store<T>,
     selectOrOnChange?: ((state: T) => ModelState) | ((exp: SVGExporter) => void),
     onChange?: (exp: SVGExporter) => void
-) {
-    let select = (s => s);
+): SVGExporter {
+    let select = ((s: any) => s);
     if (onChange) {
         select = selectOrOnChange as (state: T) => ModelState;
     }
